@@ -2,6 +2,22 @@ import React, { useState, useRef, useEffect } from "react";
 import { Lock, Download, Upload, X, ZoomIn, ZoomOut, RotateCcw, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Move, Square, Image as ImageIcon, LayoutTemplate, Sparkles } from "lucide-react";
 import { createSampleArtwork } from "./utils/sampleArtwork.js";
 import {
+  WallContactShadow,
+  FrameRabbetAO,
+  NineSliceLighting,
+  ArtworkGlassSheen,
+  InteriorVignette,
+} from "./components/FrameLighting.jsx";
+import {
+  drawWallShadow,
+  drawRabbetAO,
+  drawMatBevel,
+  drawArtworkBorder,
+  drawMiterCorners,
+  drawFrameGrain,
+  drawGlassSheen,
+} from "./utils/frameExportEffects.js";
+import {
   MAT_COLORS,
   MAT_TEXTURES,
   TEXTURE_PATTERNS,
@@ -33,7 +49,7 @@ export const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/REPLACE_WITH_YOUR_LIN
 export const CONFIG_STORAGE_KEY = "framelab:config:v1";
 export const WELCOME_STORAGE_KEY = "frametta:welcome:v1";
 
-function NineSliceFrame({ tl, tr, bl, br, edge, edgeVertical, cornerSize, mattInset, tileMode, children }) {
+function NineSliceFrame({ tl, tr, bl, br, edge, edgeVertical, cornerSize, mattInset, tileMode, borderRadius = 0, children }) {
   const contentRef = useRef(null);
   const [size, setSize] = useState({ w: 0, h: 0 });
 
@@ -55,7 +71,18 @@ function NineSliceFrame({ tl, tr, bl, br, edge, edgeVertical, cornerSize, mattIn
   const edgeSize = tileMode === "stretch" ? `100% ${mattInset}px` : `auto ${mattInset}px`;
 
   return (
-    <div className="relative" style={{ width: outerW || undefined, height: outerH || undefined, overflow: "hidden", boxShadow: size.w ? "0 18px 40px -12px rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.3)" : undefined }}>
+    <div
+      className="relative"
+      style={{
+        width: outerW || undefined,
+        height: outerH || undefined,
+        overflow: "hidden",
+        borderRadius,
+        boxShadow: size.w
+          ? "0 22px 48px -14px rgba(0,0,0,0.55), 0 6px 14px rgba(0,0,0,0.32), 0 1px 3px rgba(0,0,0,0.2)"
+          : undefined,
+      }}
+    >
       <div ref={contentRef} className="absolute" style={{ top: mattInset, left: mattInset, zIndex: 3 }}>
         {children}
       </div>
@@ -135,6 +162,12 @@ function NineSliceFrame({ tl, tr, bl, br, edge, edgeVertical, cornerSize, mattIn
               WebkitMaskImage: "radial-gradient(circle at bottom right, black 97%, transparent 100%)",
               maskImage: "radial-gradient(circle at bottom right, black 97%, transparent 100%)",
             }}
+          />
+          <NineSliceLighting
+            outerW={outerW}
+            outerH={outerH}
+            mattInset={mattInset}
+            borderRadius={borderRadius}
           />
         </>
       )}
@@ -366,6 +399,11 @@ export default function Frametta() {
   const POSITION_STEP = 14;
   const getPos = (key) => framePositions[key] || DEFAULT_POSITION;
   const currentPos = getPos(interior);
+  const viewModified =
+    sizeAdjust !== 1 ||
+    currentPos.x !== DEFAULT_POSITION.x ||
+    currentPos.y !== DEFAULT_POSITION.y;
+  const isCategoryLoading = !loadedCategories[category];
   const nudgePosition = (dx, dy) => {
     setFramePositions((prev) => {
       const p = prev[interior] || DEFAULT_POSITION;
@@ -374,7 +412,13 @@ export default function Frametta() {
   };
   const handleResetPosition = () =>
     setFramePositions((prev) => ({ ...prev, [interior]: DEFAULT_POSITION }));
+  const handleResetView = () => {
+    handleResetPosition();
+    handleResetSize();
+    showToast("View reset");
+  };
   const [showPositionPad, setShowPositionPad] = useState(false);
+  const lastTapRef = useRef(0);
 
   const handleDragStart = (clientX, clientY) => {
     const p = getPos(interior);
@@ -733,14 +777,8 @@ export default function Frametta() {
       ctx.translate(frameX, frameY);
       ctx.scale(effScale, effScale);
 
-      // Soft drop shadow under the whole frame
-      ctx.save();
-      ctx.shadowColor = "rgba(0,0,0,0.45)";
-      ctx.shadowBlur = 28;
-      ctx.shadowOffsetY = 14;
-      ctx.fillStyle = "rgba(0,0,0,0.001)"; // shadow-only pass
-      ctx.fillRect(0, 0, contentW, contentH);
-      ctx.restore();
+      // Layered wall contact + ambient shadow under the frame
+      drawWallShadow(ctx, 0, 0, contentW, contentH);
 
       if (w.nineSlice) {
         const mattInset = dynMattInset;
@@ -789,6 +827,12 @@ export default function Frametta() {
         ctx.drawImage(trImg, contentW - cornerSize, 0, cornerSize, cornerSize);
         ctx.drawImage(blImg, 0, contentH - cornerSize, cornerSize, cornerSize);
         ctx.drawImage(brImg, contentW - cornerSize, contentH - cornerSize, cornerSize, cornerSize);
+
+        const innerX = mattInset;
+        const innerY = mattInset;
+        const innerW = contentW - mattInset * 2;
+        const innerH = contentH - mattInset * 2;
+        drawRabbetAO(ctx, innerX, innerY, innerW, innerH, Math.max(10, mattInset * 0.45));
       } else {
         // CSS-gradient frame — approximate the radial lighting gradient
         // with a simple linear one from highlight to shadow tone.
@@ -798,6 +842,9 @@ export default function Frametta() {
         grad.addColorStop(1, w.lo || w.base);
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, contentW, contentH);
+        drawMiterCorners(ctx, effectiveFrameWidth, contentW, contentH);
+        drawFrameGrain(ctx, 0, 0, contentW, contentH, 0.07);
+        drawRabbetAO(ctx, effectiveFrameWidth * 0.18, effectiveFrameWidth * 0.18, contentW - effectiveFrameWidth * 0.36, contentH - effectiveFrameWidth * 0.36, effectiveFrameWidth * 0.5);
       }
 
       // Accent band + mat + artwork, inset from the outer border
@@ -815,6 +862,7 @@ export default function Frametta() {
       matGrad.addColorStop(1, mat.bottom);
       ctx.fillStyle = matGrad;
       ctx.fillRect(matX, matY, matW, matH);
+      drawMatBevel(ctx, matX, matY, matW, matH);
 
       // Artwork
       const artX = matX + matWidth;
@@ -827,6 +875,8 @@ export default function Frametta() {
         ctx.clip();
       }
       drawCover(ctx, artImg, artX, artY, displaySlotW, displaySlotH);
+      drawArtworkBorder(ctx, artX, artY, displaySlotW, displaySlotH, borderLine);
+      drawGlassSheen(ctx, artX, artY, displaySlotW, displaySlotH);
       ctx.restore();
 
       ctx.restore(); // frame transform
@@ -1036,6 +1086,7 @@ export default function Frametta() {
             {liveCameraError}
           </div>
         )}
+        {!liveCameraOn && currentInterior?.img && <InteriorVignette />}
         <div
           ref={frameContentRef}
           className="relative"
@@ -1043,12 +1094,23 @@ export default function Frametta() {
             e.preventDefault();
             handleDragStart(e.clientX, e.clientY);
           }}
+          onDoubleClick={(e) => {
+            e.preventDefault();
+            handleResetView();
+          }}
           onTouchStart={(e) => {
             if (e.touches.length === 2) {
               e.preventDefault();
               handlePinchStart(e.touches);
             } else if (e.touches[0]) {
-              handleDragStart(e.touches[0].clientX, e.touches[0].clientY);
+              const now = Date.now();
+              if (now - lastTapRef.current < 320) {
+                handleResetView();
+                lastTapRef.current = 0;
+              } else {
+                lastTapRef.current = now;
+                handleDragStart(e.touches[0].clientX, e.touches[0].clientY);
+              }
             }
           }}
           style={{
@@ -1057,6 +1119,8 @@ export default function Frametta() {
             transformOrigin: "center",
             cursor: isDragging ? "grabbing" : "grab",
             touchAction: "none",
+            opacity: isCategoryLoading ? 0.72 : 1,
+            transition: "opacity 220ms ease-out",
           }}
         >
           {/* SVG grain filter — genuine randomized noise (feTurbulence),
@@ -1067,16 +1131,7 @@ export default function Frametta() {
               <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.6 0" />
             </filter>
           </svg>
-          <div
-            className="absolute"
-            style={{
-              inset: "-6px -6px -22px -6px",
-              borderRadius: frameCornerRadius,
-              background: "radial-gradient(60% 80% at 50% 100%, rgba(0,0,0,0.35), rgba(0,0,0,0) 70%)",
-              filter: "blur(14px)",
-              transform: "translateY(14px) scaleX(0.96)",
-            }}
-          />
+          <WallContactShadow borderRadius={frameCornerRadius} />
 {w.nineSlice ? (
             <NineSliceFrame
               tl={w.nineSlice.tl}
@@ -1088,6 +1143,7 @@ export default function Frametta() {
               cornerSize={dynCornerSize}
               mattInset={dynMattInset}
               tileMode={w.nineSliceTileMode || "repeat"}
+              borderRadius={frameCornerRadius}
             >
               <div
                 style={{
@@ -1151,13 +1207,7 @@ export default function Frametta() {
                         </button>
                       </div>
                     )}
-                    <div
-                      className="absolute inset-0 pointer-events-none"
-                      style={{
-                        background:
-                          "linear-gradient(120deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.05) 18%, rgba(255,255,255,0) 40%, rgba(255,255,255,0.06) 78%, rgba(255,255,255,0.14) 100%)",
-                      }}
-                    />
+                    <ArtworkGlassSheen />
                     {image && !hasPremiumAccess && (
                       <div className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden select-none">
                         <div style={{ transform: "rotate(-32deg)", display: "flex", flexDirection: "column", gap: "30px", opacity: 0.28 }}>
@@ -1187,7 +1237,7 @@ export default function Frametta() {
               // instead of a flat diagonal band — real molding catches light
               // unevenly, not in a perfectly even gradient stripe.
               background: `radial-gradient(140% 160% at 20% 10%, ${w.base} 0%, ${w.lo} 65%, ${w.lo} 100%)`,
-              boxShadow: "0 18px 40px -12px rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.3)",
+              boxShadow: "0 22px 48px -14px rgba(0,0,0,0.55), 0 6px 14px rgba(0,0,0,0.32), 0 1px 3px rgba(0,0,0,0.2)",
             }}
           >
             <div
@@ -1210,6 +1260,7 @@ export default function Frametta() {
                 overflow: "hidden",
               }}
             >
+              <FrameRabbetAO borderRadius={frameCornerRadius} depth={Math.max(12, effectiveFrameWidth * 0.35)} />
               {/* Color tint over the real photo — ties it to the frame's
                   chosen tone/finish without hiding the actual grain. Only
                   applied when using a real photo texture. */}
@@ -1296,13 +1347,7 @@ export default function Frametta() {
                         </button>
                       </div>
                     )}
-                    <div
-                      className="absolute inset-0 pointer-events-none"
-                      style={{
-                        background:
-                          "linear-gradient(120deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.05) 18%, rgba(255,255,255,0) 40%, rgba(255,255,255,0.06) 78%, rgba(255,255,255,0.14) 100%)",
-                      }}
-                    />
+                    <ArtworkGlassSheen />
                     {image && !hasPremiumAccess && (
                       <div className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden select-none">
                         <div style={{ transform: "rotate(-32deg)", display: "flex", flexDirection: "column", gap: "30px", opacity: 0.28 }}>
@@ -1429,6 +1474,15 @@ export default function Frametta() {
               className="w-8 h-8 flex items-center justify-center rounded-full text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 transition"
             >
               <RotateCcw size={14} />
+            </button>
+          )}
+          {viewModified && (
+            <button
+              onClick={handleResetView}
+              title="Reset position and size"
+              className="ml-0.5 px-2 h-8 flex items-center justify-center rounded-full text-[10px] font-medium text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 transition"
+            >
+              Reset
             </button>
           )}
         </div>

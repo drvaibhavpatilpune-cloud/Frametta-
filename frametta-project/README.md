@@ -25,16 +25,17 @@ or fed into Capacitor for a native mobile build.
 
 ## What's in here
 
-- `src/App.jsx` — main app UI and rendering logic
+- `src/App.jsx` — main app UI and rendering logic (~95 KB)
+- `src/data/categories/*.js` — frame catalog split by category (lazy-loaded)
+- `src/data/interiors.js` — room photos (lazy-loaded on startup)
+- `src/data/constants.js` — mats, export formats, free-tier rules
 - `src/utils/sampleArtwork.js` — procedurally generated demo art for first-time users
-- `src/index.css` — global mobile-friendly styles
-- `public/` — PWA manifest and icons
-- Frame/interior assets are embedded as base64 inside `App.jsx` (no separate asset pipeline)
 
 ## Current status
 
 - **Web app, fully working.** Production build verified with `npm run build`.
 - **12 frame categories**, ~182 frames, **22 interior scenes**
+- **Lazy-loaded assets** — initial JS bundle ~200 KB; frame categories and room photos load on demand
 - **Try sample art** — explore frames instantly without uploading
 - **Export options** — PNG or JPEG, social aspect ratios, frame-only or room mockup, direct download
 - **Settings persist** — frame, mat, interior, and export preferences saved in `localStorage`

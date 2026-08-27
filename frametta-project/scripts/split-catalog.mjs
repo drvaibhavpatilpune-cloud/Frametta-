@@ -4,7 +4,7 @@
  */
 import fs from "fs";
 import path from "path";
-import { fileURLToPath, pathToFileURL } from "url";
+import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
@@ -43,15 +43,12 @@ const dataDir = path.join(root, "src/data");
 const catDir = path.join(dataDir, "categories");
 fs.mkdirSync(catDir, { recursive: true });
 
-const frameAssetsPath = path.join(dataDir, "frameAssets.js");
-fs.writeFileSync(
-  frameAssetsPath,
-  `${frameAssets.text.replace("const FRAME_ASSETS", "export const FRAME_ASSETS")}\n`
-);
-
-const frameAssetsMod = await import(pathToFileURL(frameAssetsPath));
+// Evaluate categories without writing a duplicate frameAssets.js (category
+// modules embed their own nine-slice data via JSON.stringify).
 const categoriesBody = categories.text.replace(/^const CATEGORIES = /, "").replace(/;\s*$/, "");
-const CATEGORIES = Function("FRAME_ASSETS", `return (${categoriesBody})`)(frameAssetsMod.FRAME_ASSETS);
+const frameAssetsBody = frameAssets.text.replace(/^const FRAME_ASSETS = /, "").replace(/;\s*$/, "");
+const FRAME_ASSETS = Function(`return (${frameAssetsBody})`)();
+const CATEGORIES = Function("FRAME_ASSETS", `return (${categoriesBody})`)(FRAME_ASSETS);
 
 const categoryKeys = Object.keys(CATEGORIES);
 for (const key of categoryKeys) {
