@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Lock, Download, Upload, X, ZoomIn, ZoomOut, RotateCcw, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Move, Square, Image as ImageIcon, LayoutTemplate, Sparkles } from "lucide-react";
 import { createSampleArtwork } from "./utils/sampleArtwork.js";
+import CropModal from "./components/CropModal.jsx";
 import {
   drawWallShadow,
   drawRabbetAO,
@@ -277,7 +278,6 @@ export default function Frametta() {
   const [rawImage, setRawImage] = useState(null); // uploaded original, pre-crop
   const [showCropModal, setShowCropModal] = useState(false);
   const [artworkAspect, setArtworkAspect] = useState(320 / 400); // set from the ACTUAL crop, not a fixed preset
-  const [cropRect, setCropRect] = useState({ x: 20, y: 20, w: 200, h: 250 }); // fully freeform, in rendered crop-image px
   const [toast, setToast] = useState(null);
   const [welcomeDismissed, setWelcomeDismissed] = useState(() => {
     try {
@@ -499,9 +499,6 @@ export default function Frametta() {
       window.removeEventListener("touchend", onTouchEnd);
     };
   }, [isPinching]);
-  const cropImgRef = useRef(null);
-  const dragInfo = useRef(null);
-
   // Whether the CURRENTLY SELECTED frame+interior combo exports/shares clean
   // (no watermark). Browsing/selecting anything is always allowed regardless
   // of this value — it only gates the export/share output. Frames pack
@@ -569,92 +566,15 @@ export default function Frametta() {
       dismissWelcome();
     };
     reader.readAsDataURL(file);
+    // Allow re-selecting the same file later.
+    e.target.value = "";
   };
 
-  // Called once the raw image has rendered in the crop modal, so we know its
-  // actual displayed size and can start with a generous centered box.
-  const initCropRect = () => {
-    const imgEl = cropImgRef.current;
-    if (!imgEl) return;
-    const iw = imgEl.offsetWidth;
-    const ih = imgEl.offsetHeight;
-    const cw = iw * 0.9;
-    const ch = ih * 0.9;
-    setCropRect({ x: (iw - cw) / 2, y: (ih - ch) / 2, w: cw, h: ch });
-  };
-
-  const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
-  const MIN_SIZE = 40;
-
-  const startBodyDrag = (clientX, clientY) => {
-    dragInfo.current = { type: "move", startX: clientX, startY: clientY, origin: { ...cropRect } };
-  };
-  const startHandleDrag = (handle) => (clientX, clientY) => {
-    dragInfo.current = { type: "resize", handle, startX: clientX, startY: clientY, origin: { ...cropRect } };
-  };
-  const onDragMove = (clientX, clientY) => {
-    const info = dragInfo.current;
-    if (!info) return;
-    const imgEl = cropImgRef.current;
-    if (!imgEl) return;
-    const iw = imgEl.offsetWidth;
-    const ih = imgEl.offsetHeight;
-    const dx = clientX - info.startX;
-    const dy = clientY - info.startY;
-    const o = info.origin;
-
-    if (info.type === "move") {
-      const newX = clamp(o.x + dx, 0, iw - o.w);
-      const newY = clamp(o.y + dy, 0, ih - o.h);
-      setCropRect({ x: newX, y: newY, w: o.w, h: o.h });
-      return;
-    }
-
-    // Freeform resize — each handle only touches the side(s) it's on.
-    let { x, y, w: rw, h: rh } = o;
-    const has = (s) => info.handle.includes(s);
-    if (has("l")) {
-      const newX = clamp(o.x + dx, 0, o.x + o.w - MIN_SIZE);
-      rw = o.x + o.w - newX;
-      x = newX;
-    }
-    if (has("r")) {
-      rw = clamp(o.w + dx, MIN_SIZE, iw - o.x);
-    }
-    if (has("t")) {
-      const newY = clamp(o.y + dy, 0, o.y + o.h - MIN_SIZE);
-      rh = o.y + o.h - newY;
-      y = newY;
-    }
-    if (has("b")) {
-      rh = clamp(o.h + dy, MIN_SIZE, ih - o.y);
-    }
-    setCropRect({ x, y, w: rw, h: rh });
-  };
-  const endDrag = () => {
-    dragInfo.current = null;
-  };
-
-  const applyCrop = () => {
-    const imgEl = cropImgRef.current;
-    if (!imgEl) return;
-    const scaleToNatural = imgEl.naturalWidth / imgEl.offsetWidth;
-    const srcX = cropRect.x * scaleToNatural;
-    const srcY = cropRect.y * scaleToNatural;
-    const srcW = cropRect.w * scaleToNatural;
-    const srcH = cropRect.h * scaleToNatural;
-    // Output preserves the crop's own natural proportions — no forced
-    // stretch to a fixed ratio. object-cover in the frame slot then fits it.
-    const outW = 800;
-    const outH = outW * (srcH / srcW);
-    const canvas = document.createElement("canvas");
-    canvas.width = outW;
-    canvas.height = outH;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(imgEl, srcX, srcY, srcW, srcH, 0, 0, outW, outH);
-    setImage(canvas.toDataURL("image/png"));
-    setArtworkAspect(srcW / srcH); // slot now matches this exactly — no re-crop
+  const handleApplyCrop = ({ dataUrl, aspect }) => {
+    setImage(dataUrl);
+    setArtworkAspect(aspect);
     setShowCropModal(false);
+    showToast("Crop applied");
   };
 
   const handleFrameClick = (key) => {
@@ -1985,107 +1905,11 @@ export default function Frametta() {
       )}
 
       {showCropModal && rawImage && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
-          <div className="bg-white rounded-2xl p-5 max-w-sm w-full">
-            <h2 className="text-base font-serif mb-1">Crop your artwork</h2>
-            <p className="text-xs text-black/50 mb-3">
-              Drag inside the box to move it, or drag any corner/edge to
-              resize that side. The frame will match whatever shape you crop
-              to — no forced portrait or landscape.
-            </p>
-
-            <div
-              className="relative mx-auto select-none"
-              style={{ maxWidth: 300 }}
-              onMouseMove={(e) => onDragMove(e.clientX, e.clientY)}
-              onMouseUp={endDrag}
-              onMouseLeave={endDrag}
-              onTouchMove={(e) => onDragMove(e.touches[0].clientX, e.touches[0].clientY)}
-              onTouchEnd={endDrag}
-            >
-              <img
-                ref={cropImgRef}
-                src={rawImage}
-                alt="crop preview"
-                draggable={false}
-                onLoad={initCropRect}
-                className="block w-full h-auto rounded"
-                style={{ maxHeight: 380, objectFit: "contain" }}
-              />
-              {/* Dark mask outside the crop box */}
-              <div className="absolute inset-0 pointer-events-none bg-black/50" style={{
-                clipPath: `polygon(0% 0%, 0% 100%, ${cropRect.x}px 100%, ${cropRect.x}px ${cropRect.y}px, ${cropRect.x + cropRect.w}px ${cropRect.y}px, ${cropRect.x + cropRect.w}px ${cropRect.y + cropRect.h}px, ${cropRect.x}px ${cropRect.y + cropRect.h}px, ${cropRect.x}px 100%, 100% 100%, 100% 0%)`
-              }} />
-              {/* Crop box */}
-              <div
-                className="absolute border-2 border-white cursor-move"
-                style={{
-                  left: cropRect.x,
-                  top: cropRect.y,
-                  width: cropRect.w,
-                  height: cropRect.h,
-                  boxShadow: "0 0 0 1px rgba(0,0,0,0.4)",
-                }}
-                onMouseDown={(e) => startBodyDrag(e.clientX, e.clientY)}
-                onTouchStart={(e) => startBodyDrag(e.touches[0].clientX, e.touches[0].clientY)}
-              >
-                {[
-                  { key: "tl", pos: "-top-2 -left-2 cursor-nwse-resize" },
-                  { key: "tr", pos: "-top-2 -right-2 cursor-nesw-resize" },
-                  { key: "bl", pos: "-bottom-2 -left-2 cursor-nesw-resize" },
-                  { key: "br", pos: "-bottom-2 -right-2 cursor-nwse-resize" },
-                ].map((h) => (
-                  <div
-                    key={h.key}
-                    onMouseDown={(e) => {
-                      e.stopPropagation();
-                      startHandleDrag(h.key)(e.clientX, e.clientY);
-                    }}
-                    onTouchStart={(e) => {
-                      e.stopPropagation();
-                      startHandleDrag(h.key)(e.touches[0].clientX, e.touches[0].clientY);
-                    }}
-                    className={`absolute w-4 h-4 bg-white border-2 border-black rounded-full z-10 ${h.pos}`}
-                  />
-                ))}
-                {[
-                  { key: "t", pos: "-top-1.5 left-1/2 -translate-x-1/2 cursor-ns-resize" },
-                  { key: "b", pos: "-bottom-1.5 left-1/2 -translate-x-1/2 cursor-ns-resize" },
-                  { key: "l", pos: "top-1/2 -left-1.5 -translate-y-1/2 cursor-ew-resize" },
-                  { key: "r", pos: "top-1/2 -right-1.5 -translate-y-1/2 cursor-ew-resize" },
-                ].map((h) => (
-                  <div
-                    key={h.key}
-                    onMouseDown={(e) => {
-                      e.stopPropagation();
-                      startHandleDrag(h.key)(e.clientX, e.clientY);
-                    }}
-                    onTouchStart={(e) => {
-                      e.stopPropagation();
-                      startHandleDrag(h.key)(e.touches[0].clientX, e.touches[0].clientY);
-                    }}
-                    className={`absolute w-3 h-3 bg-white border-2 border-black rounded-full ${h.pos}`}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <div className="flex gap-2 mt-4">
-              <button
-                onClick={() => setShowCropModal(false)}
-                className="flex-1 py-2 rounded-lg border border-black/15 text-sm text-black/60"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={applyCrop}
-                className="flex-1 py-2 rounded-lg bg-black text-white text-sm hover:bg-black/80 transition"
-              >
-                Apply Crop
-              </button>
-            </div>
-          </div>
-        </div>
+        <CropModal
+          imageSrc={rawImage}
+          onCancel={() => setShowCropModal(false)}
+          onApply={handleApplyCrop}
+        />
       )}
 
       {!image && !welcomeDismissed && !activeSheet && (
