@@ -3,56 +3,75 @@
 Art-framing mockup app — see your artwork framed and hung in a real room
 before ordering a physical frame.
 
-## Quick start
+**App ID:** `com.drvaibhavpatilpune.frametta`
+
+## Quick start (web)
 
 ```bash
+cd frametta-project
 npm install
 npm run dev
 ```
 
-Opens a local dev server (prints the URL to visit — usually
-`http://localhost:5173`).
-
-## Build for production
+## Build for production (web)
 
 ```bash
 npm run build
 npm run preview
 ```
 
-Outputs a static site to `dist/` — this is what gets deployed to a web host,
-or fed into Capacitor for a native mobile build.
+## Capacitor (Android native wrapper)
+
+The Android project is already scaffolded under `android/`.
+
+### On your Windows or Mac machine (needs Android Studio)
+
+```bash
+cd frametta-project
+npm install
+npm run cap:android
+```
+
+That builds the web app, syncs it into `android/`, and opens **Android Studio**.
+
+Then in Android Studio:
+1. Wait for Gradle sync to finish
+2. Press **Run ▶** on an emulator or a USB-debugged phone
+
+### Useful scripts
+
+| Script | What it does |
+|--------|----------------|
+| `npm run cap:sync` | `vite build` + `cap sync` |
+| `npm run cap:android` | Sync and open Android Studio |
+| `npm run cap:assets` | Regenerate icons/splash from `resources/` |
+| `npm run cap:ios` | Sync and open Xcode (Mac only; run `npx cap add ios` first) |
+
+### Native plugins included
+
+- `@capacitor/camera` — Live Camera permission + capture
+- `@capacitor/share` — native share sheet helper
+- `@capacitor/status-bar` / `@capacitor/splash-screen` / `@capacitor/app`
+
+### Not done yet (post-wrap)
+
+- **Google Play Billing / App Store IAP** — unlock buttons are still mocked
+- **iOS platform** — add with `npx cap add ios` on a Mac when ready
+- **Play Store listing** — signed `.aab` via Android Studio → Generate Signed Bundle
 
 ## What's in here
 
-- `src/App.jsx` — main app UI and rendering logic (~95 KB)
-- `src/data/categories/*.js` — frame catalog split by category (lazy-loaded)
-- `src/data/interiors.js` — room photos (lazy-loaded on startup)
-- `src/data/constants.js` — mats, export formats, free-tier rules
-- `src/utils/sampleArtwork.js` — procedurally generated demo art for first-time users
+- `src/App.jsx` — main app UI
+- `src/components/CropModal.jsx` — mobile-friendly cropper
+- `src/native/` — Capacitor bootstrap + camera/share helpers
+- `src/data/` — lazy-loaded frames & interiors
+- `android/` — Capacitor Android project
+- `resources/icon.png` + `resources/splash.png` — source assets for native icons
 
 ## Current status
 
-- **Web app, fully working.** Production build verified with `npm run build`.
-- **12 frame categories**, ~182 frames, **22 interior scenes**
-- **Lazy-loaded assets** — initial JS bundle ~200 KB; frame categories and room photos load on demand
-- **Try sample art** — explore frames instantly without uploading
-- **Export options** — PNG or JPEG, social aspect ratios, frame-only or room mockup, direct download
-- **Settings persist** — frame, mat, interior, and export preferences saved in `localStorage`
-- **Monetization UI is built** (paywall, watermarking, free/paid gating) but purchases are still mocked locally — real Apple/Google IAP is not wired up yet
-- **Live Camera** uses the browser camera API; may need `@capacitor/camera` when wrapped as a native app
-
-## Turning this into a mobile app
-
-See `frametta-mobile-conversion-guide.md` in this same folder — Capacitor
-setup, Android + Play Store steps, iOS + App Store steps.
-
-## App icon & splash screen
-
-`resources/icon.png` (1024×1024) and `resources/splash.png` (2732×2732) are
-included. After adding Capacitor:
-
-```bash
-npm install @capacitor/assets --save-dev
-npx capacitor-assets generate
-```
+- Web app working (`npm run build` verified)
+- Capacitor Android shell ready to open in Android Studio
+- Camera permission declared in `AndroidManifest.xml`
+- Crop, frames, mats, export, watermark/paywall UI in place
+- Purchases still mocked until real IAP is wired

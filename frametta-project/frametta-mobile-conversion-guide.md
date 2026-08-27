@@ -55,38 +55,23 @@ working, you're ready to move on.
 
 ## Part 3 — Android + Play Store
 
-### 3a. Add Capacitor (the tool that wraps your web app as a real Android app)
+### 3a. Add Capacitor (already done in this repo)
+
+Capacitor is already initialized. App ID: `com.drvaibhavpatilpune.frametta`.
+
+On your laptop:
 
 ```bash
-npm install @capacitor/core @capacitor/cli
-npx cap init
+cd frametta-project
+npm install
+npm run cap:android
 ```
 
-It'll ask for:
-- **App name**: `Frametta`
-- **App ID**: something like `com.yourname.frametta` (this is permanent —
-  can't be changed later without republishing as a new app, so pick carefully)
+That builds the web app, syncs into `android/`, and opens Android Studio.
+Let it finish Gradle sync (progress bar at the bottom — can take several
+minutes the first time).
 
-### 3b. Build and add the Android platform
-
-```bash
-npm run build
-npm install @capacitor/android
-npx cap add android
-npx cap copy
-```
-
-### 3c. Open in Android Studio
-
-```bash
-npx cap open android
-```
-
-This launches Android Studio with your project loaded. Let it finish
-"Gradle sync" (a progress bar at the bottom — can take several minutes the
-first time).
-
-### 3d. Test on an emulator or your own phone
+### 3b. Test on an emulator or your own phone
 
 - **Emulator**: in Android Studio, click the green ▶ Run button — it'll
   offer to create a virtual Android phone if you don't have one yet.
@@ -94,7 +79,7 @@ first time).
   "Build Number" 7 times), turn on USB Debugging, plug in via USB, then hit
   Run — Android Studio will list your phone as a target.
 
-### 3e. Create a signed build for the Play Store
+### 3c. Create a signed build for the Play Store
 
 In Android Studio: **Build → Generate Signed Bundle / APK → Android App
 Bundle**. It'll walk you through creating a signing key — **save this key
@@ -103,7 +88,7 @@ your app again under the same listing.
 
 This produces a `.aab` file — that's what you upload to the Play Store.
 
-### 3f. Create your Play Store listing
+### 3d. Create your Play Store listing
 
 1. Go to [play.google.com/console](https://play.google.com/console), pay the
    one-time $25 fee, create your developer account.

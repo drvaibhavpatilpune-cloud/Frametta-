@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Frametta</string>
+    <string name="title_activity_main">Frametta</string>
+    <string name="package_name">com.drvaibhavpatilpune.frametta</string>
+    <string name="custom_url_scheme">com.drvaibhavpatilpune.frametta</string>
+</resources>

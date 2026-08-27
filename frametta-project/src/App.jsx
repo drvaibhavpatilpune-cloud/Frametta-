@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Lock, Download, Upload, X, ZoomIn, ZoomOut, RotateCcw, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Move, Square, Image as ImageIcon, LayoutTemplate, Sparkles } from "lucide-react";
 import { createSampleArtwork } from "./utils/sampleArtwork.js";
 import CropModal from "./components/CropModal.jsx";
+import { requestLiveCameraPermission, shareFileOrUrl } from "./native/nativeMedia.js";
 import {
   drawWallShadow,
   drawRabbetAO,
@@ -316,10 +317,7 @@ export default function Frametta() {
   const startLiveCamera = async () => {
     setLiveCameraError(null);
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: "environment" } },
-        audio: false,
-      });
+      const stream = await requestLiveCameraPermission();
       cameraStreamRef.current = stream;
       setLiveCameraOn(true);
     } catch (err) {
@@ -1850,12 +1848,47 @@ export default function Frametta() {
                 Download {exportPreviewExt.toUpperCase()}
               </a>
               <button
-                onClick={() => setExportPreviewUrl(null)}
+                type="button"
+                onClick={async () => {
+                  try {
+                    if (navigator.canShare && exportPreviewUrl) {
+                      const res = await fetch(exportPreviewUrl);
+                      const blob = await res.blob();
+                      const file = new File(
+                        [blob],
+                        `frametta.${exportPreviewExt === "jpg" ? "jpg" : "png"}`,
+                        { type: blob.type || "image/png" }
+                      );
+                      if (navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                          files: [file],
+                          title: "Frametta",
+                          text: "Framed with Frametta",
+                        });
+                        return;
+                      }
+                    }
+                    const shared = await shareFileOrUrl({
+                      title: "Frametta",
+                      text: "Framed with Frametta",
+                      dialogTitle: "Share your frame",
+                    });
+                    if (!shared) showToast("Use Download, then share from Photos");
+                  } catch (err) {
+                    if (err?.name !== "AbortError") showToast("Share cancelled or unavailable");
+                  }
+                }}
                 className="flex-1 text-sm px-4 py-2 rounded-lg border border-black/15 text-black/70 hover:border-black/40 transition"
               >
-                Close
+                Share
               </button>
             </div>
+            <button
+              onClick={() => setExportPreviewUrl(null)}
+              className="mt-2 w-full text-sm px-4 py-2 rounded-lg text-black/50 hover:text-black/70 transition"
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
