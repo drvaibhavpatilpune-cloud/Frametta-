@@ -2,13 +2,6 @@ import React, { useState, useRef, useEffect } from "react";
 import { Lock, Download, Upload, X, ZoomIn, ZoomOut, RotateCcw, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Move, Square, Image as ImageIcon, LayoutTemplate, Sparkles } from "lucide-react";
 import { createSampleArtwork } from "./utils/sampleArtwork.js";
 import {
-  WallContactShadow,
-  FrameRabbetAO,
-  NineSliceLighting,
-  ArtworkGlassSheen,
-  InteriorVignette,
-} from "./components/FrameLighting.jsx";
-import {
   drawWallShadow,
   drawRabbetAO,
   drawMatBevel,
@@ -49,7 +42,7 @@ export const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/REPLACE_WITH_YOUR_LIN
 export const CONFIG_STORAGE_KEY = "framelab:config:v1";
 export const WELCOME_STORAGE_KEY = "frametta:welcome:v1";
 
-function NineSliceFrame({ tl, tr, bl, br, edge, edgeVertical, cornerSize, mattInset, tileMode, borderRadius = 0, children }) {
+function NineSliceFrame({ tl, tr, bl, br, edge, edgeVertical, cornerSize, mattInset, tileMode, children }) {
   const contentRef = useRef(null);
   const [size, setSize] = useState({ w: 0, h: 0 });
 
@@ -74,35 +67,37 @@ function NineSliceFrame({ tl, tr, bl, br, edge, edgeVertical, cornerSize, mattIn
     <div
       className="relative"
       style={{
+        position: "relative",
         width: outerW || undefined,
         height: outerH || undefined,
         overflow: "hidden",
-        borderRadius,
-        boxShadow: size.w
-          ? "0 22px 48px -14px rgba(0,0,0,0.55), 0 6px 14px rgba(0,0,0,0.32), 0 1px 3px rgba(0,0,0,0.2)"
-          : undefined,
+        boxShadow: size.w ? "0 18px 40px -12px rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.3)" : undefined,
       }}
     >
-      <div ref={contentRef} className="absolute" style={{ top: mattInset, left: mattInset, zIndex: 3 }}>
+      <div
+        ref={contentRef}
+        className="absolute"
+        style={{ position: "absolute", top: mattInset, left: mattInset, zIndex: 3 }}
+      >
         {children}
       </div>
       {size.w > 0 && (
         <>
-          <div className="absolute" style={{ top: 0, left: 0, width: outerW, height: mattInset, backgroundImage: `url(${edge})`, backgroundRepeat: edgeRepeat, backgroundSize: edgeSize, zIndex: 1 }} />
-          <div className="absolute" style={{ bottom: 0, left: 0, width: outerW, height: mattInset, backgroundImage: `url(${edge})`, backgroundRepeat: edgeRepeat, backgroundSize: edgeSize, transform: "scaleY(-1)", zIndex: 1 }} />
+          <div className="absolute" style={{ position: "absolute", top: 0, left: 0, width: outerW, height: mattInset, backgroundImage: `url(${edge})`, backgroundRepeat: edgeRepeat, backgroundSize: edgeSize, zIndex: 1 }} />
+          <div className="absolute" style={{ position: "absolute", bottom: 0, left: 0, width: outerW, height: mattInset, backgroundImage: `url(${edge})`, backgroundRepeat: edgeRepeat, backgroundSize: edgeSize, transform: "scaleY(-1)", zIndex: 1 }} />
           {edgeVertical ? (
             <>
               {/* Dedicated vertical-edge photo — grain/veining runs the
                   correct direction natively, no rotation needed. */}
-              <div className="absolute" style={{ top: 0, left: 0, width: mattInset, height: outerH, backgroundImage: `url(${edgeVertical})`, backgroundRepeat: tileMode === "stretch" ? "no-repeat" : "repeat-y", backgroundSize: tileMode === "stretch" ? `${mattInset}px 100%` : `${mattInset}px auto`, zIndex: 1 }} />
-              <div className="absolute" style={{ top: 0, right: 0, width: mattInset, height: outerH, backgroundImage: `url(${edgeVertical})`, backgroundRepeat: tileMode === "stretch" ? "no-repeat" : "repeat-y", backgroundSize: tileMode === "stretch" ? `${mattInset}px 100%` : `${mattInset}px auto`, transform: "scaleX(-1)", zIndex: 1 }} />
+              <div className="absolute" style={{ position: "absolute", top: 0, left: 0, width: mattInset, height: outerH, backgroundImage: `url(${edgeVertical})`, backgroundRepeat: tileMode === "stretch" ? "no-repeat" : "repeat-y", backgroundSize: tileMode === "stretch" ? `${mattInset}px 100%` : `${mattInset}px auto`, zIndex: 1 }} />
+              <div className="absolute" style={{ position: "absolute", top: 0, right: 0, width: mattInset, height: outerH, backgroundImage: `url(${edgeVertical})`, backgroundRepeat: tileMode === "stretch" ? "no-repeat" : "repeat-y", backgroundSize: tileMode === "stretch" ? `${mattInset}px 100%` : `${mattInset}px auto`, transform: "scaleX(-1)", zIndex: 1 }} />
             </>
           ) : (
             <>
-              <div className="absolute overflow-hidden" style={{ top: 0, left: 0, width: mattInset, height: outerH, zIndex: 1 }}>
+              <div className="absolute overflow-hidden" style={{ position: "absolute", top: 0, left: 0, width: mattInset, height: outerH, zIndex: 1, overflow: "hidden" }}>
                 <div style={{ width: outerH, height: mattInset, backgroundImage: `url(${edge})`, backgroundRepeat: edgeRepeat, backgroundSize: edgeSize, transform: `translateX(${(mattInset - outerH) / 2}px) translateY(${(outerH - mattInset) / 2}px) rotate(-90deg)` }} />
               </div>
-              <div className="absolute overflow-hidden" style={{ top: 0, right: 0, width: mattInset, height: outerH, zIndex: 1, transform: "scaleX(-1)" }}>
+              <div className="absolute overflow-hidden" style={{ position: "absolute", top: 0, right: 0, width: mattInset, height: outerH, zIndex: 1, overflow: "hidden", transform: "scaleX(-1)" }}>
                 <div style={{ width: outerH, height: mattInset, backgroundImage: `url(${edge})`, backgroundRepeat: edgeRepeat, backgroundSize: edgeSize, transform: `translateX(${(mattInset - outerH) / 2}px) translateY(${(outerH - mattInset) / 2}px) rotate(-90deg)` }} />
               </div>
             </>
@@ -112,11 +107,13 @@ function NineSliceFrame({ tl, tr, bl, br, edge, edgeVertical, cornerSize, mattIn
             alt=""
             className="absolute pointer-events-none"
             style={{
+              position: "absolute",
               top: 0,
               left: 0,
               width: cornerSize,
               height: cornerSize,
               zIndex: 2,
+              pointerEvents: "none",
               WebkitMaskImage: "radial-gradient(circle at top left, black 97%, transparent 100%)",
               maskImage: "radial-gradient(circle at top left, black 97%, transparent 100%)",
             }}
@@ -126,11 +123,13 @@ function NineSliceFrame({ tl, tr, bl, br, edge, edgeVertical, cornerSize, mattIn
             alt=""
             className="absolute pointer-events-none"
             style={{
+              position: "absolute",
               top: 0,
               right: 0,
               width: cornerSize,
               height: cornerSize,
               zIndex: 2,
+              pointerEvents: "none",
               WebkitMaskImage: "radial-gradient(circle at top right, black 97%, transparent 100%)",
               maskImage: "radial-gradient(circle at top right, black 97%, transparent 100%)",
             }}
@@ -140,11 +139,13 @@ function NineSliceFrame({ tl, tr, bl, br, edge, edgeVertical, cornerSize, mattIn
             alt=""
             className="absolute pointer-events-none"
             style={{
+              position: "absolute",
               bottom: 0,
               left: 0,
               width: cornerSize,
               height: cornerSize,
               zIndex: 2,
+              pointerEvents: "none",
               WebkitMaskImage: "radial-gradient(circle at bottom left, black 97%, transparent 100%)",
               maskImage: "radial-gradient(circle at bottom left, black 97%, transparent 100%)",
             }}
@@ -154,20 +155,16 @@ function NineSliceFrame({ tl, tr, bl, br, edge, edgeVertical, cornerSize, mattIn
             alt=""
             className="absolute pointer-events-none"
             style={{
+              position: "absolute",
               bottom: 0,
               right: 0,
               width: cornerSize,
               height: cornerSize,
               zIndex: 2,
+              pointerEvents: "none",
               WebkitMaskImage: "radial-gradient(circle at bottom right, black 97%, transparent 100%)",
               maskImage: "radial-gradient(circle at bottom right, black 97%, transparent 100%)",
             }}
-          />
-          <NineSliceLighting
-            outerW={outerW}
-            outerH={outerH}
-            mattInset={mattInset}
-            borderRadius={borderRadius}
           />
         </>
       )}
@@ -1086,7 +1083,6 @@ export default function Frametta() {
             {liveCameraError}
           </div>
         )}
-        {!liveCameraOn && currentInterior?.img && <InteriorVignette />}
         <div
           ref={frameContentRef}
           className="relative"
@@ -1131,7 +1127,16 @@ export default function Frametta() {
               <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.6 0" />
             </filter>
           </svg>
-          <WallContactShadow borderRadius={frameCornerRadius} />
+          <div
+            className="absolute"
+            style={{
+              inset: "-6px -6px -22px -6px",
+              borderRadius: frameCornerRadius,
+              background: "radial-gradient(60% 80% at 50% 100%, rgba(0,0,0,0.35), rgba(0,0,0,0) 70%)",
+              filter: "blur(14px)",
+              transform: "translateY(14px) scaleX(0.96)",
+            }}
+          />
 {w.nineSlice ? (
             <NineSliceFrame
               tl={w.nineSlice.tl}
@@ -1143,7 +1148,6 @@ export default function Frametta() {
               cornerSize={dynCornerSize}
               mattInset={dynMattInset}
               tileMode={w.nineSliceTileMode || "repeat"}
-              borderRadius={frameCornerRadius}
             >
               <div
                 style={{
@@ -1207,7 +1211,13 @@ export default function Frametta() {
                         </button>
                       </div>
                     )}
-                    <ArtworkGlassSheen />
+                    <div
+                      className="absolute inset-0 pointer-events-none"
+                      style={{
+                        background:
+                          "linear-gradient(120deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.05) 18%, rgba(255,255,255,0) 40%, rgba(255,255,255,0.06) 78%, rgba(255,255,255,0.14) 100%)",
+                      }}
+                    />
                     {image && !hasPremiumAccess && (
                       <div className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden select-none">
                         <div style={{ transform: "rotate(-32deg)", display: "flex", flexDirection: "column", gap: "30px", opacity: 0.28 }}>
@@ -1237,7 +1247,7 @@ export default function Frametta() {
               // instead of a flat diagonal band — real molding catches light
               // unevenly, not in a perfectly even gradient stripe.
               background: `radial-gradient(140% 160% at 20% 10%, ${w.base} 0%, ${w.lo} 65%, ${w.lo} 100%)`,
-              boxShadow: "0 22px 48px -14px rgba(0,0,0,0.55), 0 6px 14px rgba(0,0,0,0.32), 0 1px 3px rgba(0,0,0,0.2)",
+              boxShadow: "0 18px 40px -12px rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.3)",
             }}
           >
             <div
@@ -1260,7 +1270,6 @@ export default function Frametta() {
                 overflow: "hidden",
               }}
             >
-              <FrameRabbetAO borderRadius={frameCornerRadius} depth={Math.max(12, effectiveFrameWidth * 0.35)} />
               {/* Color tint over the real photo — ties it to the frame's
                   chosen tone/finish without hiding the actual grain. Only
                   applied when using a real photo texture. */}
@@ -1347,7 +1356,13 @@ export default function Frametta() {
                         </button>
                       </div>
                     )}
-                    <ArtworkGlassSheen />
+                    <div
+                      className="absolute inset-0 pointer-events-none"
+                      style={{
+                        background:
+                          "linear-gradient(120deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.05) 18%, rgba(255,255,255,0) 40%, rgba(255,255,255,0.06) 78%, rgba(255,255,255,0.14) 100%)",
+                      }}
+                    />
                     {image && !hasPremiumAccess && (
                       <div className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden select-none">
                         <div style={{ transform: "rotate(-32deg)", display: "flex", flexDirection: "column", gap: "30px", opacity: 0.28 }}>
