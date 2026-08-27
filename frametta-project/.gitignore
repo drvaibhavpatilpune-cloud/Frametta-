@@ -1,0 +1,19 @@
+node_modules
+dist
+.DS_Store
+
+# Capacitor / Android local build outputs (keep android/ project in git)
+android/.gradle/
+android/app/build/
+android/build/
+android/captures/
+android/local.properties
+android/.idea/
+*.apk
+*.aab
+*.keystore
+
+# iOS (when added later)
+ios/App/Pods/
+ios/App/App/public/
+ios/DerivedData/
