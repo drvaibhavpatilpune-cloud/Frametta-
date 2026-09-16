@@ -123,12 +123,12 @@ function StudioEnvironment({ intensity = 0.42 }) {
 function Lights({ isMobile }) {
   return (
     <>
-      <ambientLight intensity={0.28} color="#f2ebe3" />
+      <ambientLight intensity={0.42} color="#f5efe8" />
       <hemisphereLight args={['#f5f0ea', '#3a322c', 0.55]} />
       <directionalLight
         castShadow={!isMobile}
         position={[3.8, 5.5, 2.8]}
-        intensity={1.55}
+        intensity={1.85}
         color="#fff6ec"
         shadow-mapSize-width={isMobile ? 512 : 2048}
         shadow-mapSize-height={isMobile ? 512 : 2048}
@@ -212,12 +212,12 @@ export default function AnatomyViewer({ step, viewMode, languageMode }) {
           alpha: false,
           powerPreference: 'high-performance',
           toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.12,
+          toneMappingExposure: 1.22,
         }}
         onPointerMissed={() => useAppStore.getState().setSelectedStructure(null)}
       >
-        <color attach="background" args={['#2a2928']} />
-        <fog attach="fog" args={['#2a2928', 6.5, 16]} />
+        <color attach="background" args={['#32302e']} />
+        <fog attach="fog" args={['#32302e', 8, 18]} />
         <Lights isMobile={isMobile} />
         <StudioEnvironment intensity={0.42} />
         <Suspense fallback={null}>
@@ -232,7 +232,7 @@ export default function AnatomyViewer({ step, viewMode, languageMode }) {
               position={[0, -2.02, 0]}
               frames={48}
               alphaTest={0.85}
-              opacity={0.55}
+              opacity={0.35}
               scale={12}
               color="#1a1512"
             >

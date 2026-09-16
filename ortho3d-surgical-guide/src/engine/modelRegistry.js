@@ -25,9 +25,9 @@ export const KNEE_MODEL_PACK = {
 };
 
 export const STRUCTURE_COLORS = {
-  femur: '#e8d9c0',
-  tibia: '#e4d4ba',
-  patella: '#ecdfc8',
+  femur: '#f0e4d0',
+  tibia: '#eee0cc',
+  patella: '#f3e8d6',
   acl: '#c9a67a',
   pcl: '#b8956a',
   mcl: '#b08962',

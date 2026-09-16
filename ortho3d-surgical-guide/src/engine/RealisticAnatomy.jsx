@@ -25,7 +25,7 @@ function makeBoneMaps(size = 768) {
   const ctx = albedo.getContext('2d');
 
   // Warm ivory base (reference medical atlas tone)
-  ctx.fillStyle = '#e9dcc6';
+  ctx.fillStyle = '#f2e6d4';
   ctx.fillRect(0, 0, size, size);
 
   const img = ctx.getImageData(0, 0, size, size);
@@ -256,20 +256,20 @@ function makeMuscleMaps(size = 512) {
 
 function makeBoneMaterial(color) {
   if (typeof document === 'undefined') {
-    return new THREE.MeshStandardMaterial({ color, roughness: 0.78, metalness: 0 });
+    return new THREE.MeshStandardMaterial({ color, roughness: 0.72, metalness: 0 });
   }
   const maps = makeBoneMaps();
   return new THREE.MeshStandardMaterial({
     color,
     map: maps.map,
     normalMap: maps.normalMap,
-    normalScale: new THREE.Vector2(0.55, 0.55),
+    normalScale: new THREE.Vector2(0.75, 0.75),
     roughnessMap: maps.roughnessMap,
     aoMap: maps.aoMap,
-    aoMapIntensity: 0.85,
+    aoMapIntensity: 0.45,
     roughness: 0.78,
     metalness: 0.02,
-    envMapIntensity: 0.35,
+    envMapIntensity: 0.55,
   });
 }
 
