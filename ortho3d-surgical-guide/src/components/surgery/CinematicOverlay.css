@@ -1,0 +1,234 @@
+.cinematic-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 34;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+  color: #fff;
+}
+
+.cinematic-overlay > * {
+  pointer-events: none;
+}
+
+.cinematic-overlay button,
+.cinematic-overlay input,
+.cinematic-overlay .cine-caption {
+  pointer-events: auto;
+}
+
+/* full-area tap catcher */
+.cinematic-overlay {
+  pointer-events: auto;
+}
+
+.cine-top,
+.cine-bottom,
+.cine-center-controls {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.hide-controls .cine-top,
+.hide-controls .cine-bottom,
+.hide-controls .cine-center-controls {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hide-controls .cine-caption {
+  opacity: 1 !important;
+  pointer-events: auto;
+}
+
+.cine-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: calc(10px + var(--safe-top)) 12px 12px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.55), transparent);
+}
+
+.cine-top-title {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 4px;
+}
+
+.cine-proc {
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.75;
+}
+
+.cine-step {
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cine-top-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.cine-icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.cine-center-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  flex: 1;
+}
+
+.cine-round {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.cine-round-main {
+  width: 72px;
+  height: 72px;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.cine-skip-num {
+  position: absolute;
+  font-size: 9px;
+  font-weight: 700;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -55%);
+}
+
+.cine-round .flip {
+  transform: scaleX(-1);
+}
+
+.cine-bottom {
+  padding: 0 14px calc(14px + var(--safe-bottom));
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.62), transparent);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cine-caption {
+  align-self: center;
+  max-width: 520px;
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: rgba(78, 52, 120, 0.72);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+}
+
+.cine-caption p {
+  margin: 0;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+.cine-scrub {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.cine-time {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.85;
+  min-width: 34px;
+}
+
+.cine-scrub input[type='range'] {
+  width: 100%;
+  accent-color: #fff;
+  height: 4px;
+}
+
+.cine-step-rail {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cine-chip {
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.cine-chip.primary {
+  background: rgba(62, 168, 168, 0.85);
+  border-color: transparent;
+  color: #071014;
+}
+
+.cine-dots {
+  display: flex;
+  gap: 5px;
+  flex: 1;
+  justify-content: center;
+}
+
+.cine-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.cine-dot.done {
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.cine-dot.on {
+  background: #fff;
+  width: 16px;
+  border-radius: 4px;
+}
+
+@media (min-width: 821px) {
+  .cine-caption {
+    max-width: 640px;
+  }
+  .cine-caption p {
+    font-size: 15px;
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "name": "Ortho3D Surgical Guide",
+  "short_name": "Ortho3D",
+  "description": "Interactive 3D orthopedic surgical education for phone and tablet",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#070b10",
+  "theme_color": "#0b1218",
+  "categories": ["education", "medical"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

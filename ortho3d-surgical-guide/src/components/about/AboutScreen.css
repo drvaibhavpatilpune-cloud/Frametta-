@@ -1,0 +1,47 @@
+.about-screen {
+  height: 100%;
+  overflow: auto;
+  padding: 24px 20px 48px;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.about-card {
+  padding: 18px;
+  margin-top: 16px;
+}
+
+.about-card h2 {
+  margin: 0 0 10px;
+  font-size: 16px;
+}
+
+.about-card p,
+.about-card li {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.about-card p strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.about-card ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.about-card code {
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--bg-hover);
+  color: var(--accent);
+}
+
+.about-card .muted {
+  color: var(--text-muted);
+  font-size: 13px;
+}

@@ -1,0 +1,66 @@
+{
+  "source": "SPL Knee Atlas",
+  "license": "Apache-2.0",
+  "structures": {
+    "femur": {
+      "file": "models/knee/femur.glb",
+      "faces": 45000,
+      "bytes": 1081092
+    },
+    "tibia": {
+      "file": "models/knee/tibia.glb",
+      "faces": 40000,
+      "bytes": 961076
+    },
+    "patella": {
+      "file": "models/knee/patella.glb",
+      "faces": 12000,
+      "bytes": 289100
+    },
+    "acl": {
+      "file": "models/knee/acl.glb",
+      "faces": 7000,
+      "bytes": 169100
+    },
+    "pcl": {
+      "file": "models/knee/pcl.glb",
+      "faces": 7000,
+      "bytes": 169100
+    },
+    "mcl": {
+      "file": "models/knee/mcl.glb",
+      "faces": 6000,
+      "bytes": 145100
+    },
+    "lcl": {
+      "file": "models/knee/lcl.glb",
+      "faces": 6000,
+      "bytes": 145124
+    },
+    "meniscusMedial": {
+      "file": "models/knee/meniscusMedial.glb",
+      "faces": 6000,
+      "bytes": 145100
+    },
+    "meniscusLateral": {
+      "file": "models/knee/meniscusLateral.glb",
+      "faces": 6000,
+      "bytes": 144864
+    },
+    "cartilageFemoral": {
+      "file": "models/knee/cartilageFemoral.glb",
+      "faces": 12000,
+      "bytes": 288812
+    },
+    "cartilageMedial": {
+      "file": "models/knee/cartilageMedial.glb",
+      "faces": 6000,
+      "bytes": 145028
+    },
+    "cartilageLateral": {
+      "file": "models/knee/cartilageLateral.glb",
+      "faces": 6000,
+      "bytes": 144992
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "appId": "com.ortho3d.surgicalguide",
+  "appName": "Ortho3D Surgical Guide",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "backgroundColor": "#0b1218"
+    }
+  }
+}

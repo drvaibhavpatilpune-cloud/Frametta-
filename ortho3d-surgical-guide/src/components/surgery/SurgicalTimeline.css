@@ -1,0 +1,124 @@
+.surgical-timeline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  padding: 10px 12px calc(10px + var(--safe-bottom));
+  background: linear-gradient(to top, rgba(7, 11, 16, 0.95), rgba(7, 11, 16, 0.72), transparent);
+}
+
+.timeline-track {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 2px 8px;
+  scroll-snap-type: x mandatory;
+}
+
+.timeline-step {
+  position: relative;
+  flex: 0 0 auto;
+  width: 118px;
+  scroll-snap-align: start;
+  text-align: left;
+  color: var(--text-secondary);
+}
+
+.timeline-step.active {
+  color: var(--text-primary);
+}
+
+.thumb {
+  position: relative;
+  height: 64px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-elevated);
+}
+
+.timeline-step.active .thumb {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(62, 168, 168, 0.35);
+}
+
+.thumb-art {
+  position: absolute;
+  inset: 0;
+  opacity: 0.9;
+}
+
+.thumb-num {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.thumb-progress {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--accent);
+  z-index: 3;
+}
+
+.thumb-play {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  z-index: 2;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+}
+
+.step-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 6px;
+  padding: 0 2px;
+}
+
+.step-num {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.timeline-step.active .step-num {
+  color: var(--accent);
+}
+
+.step-title {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.step-connector {
+  display: none;
+}
+
+.surgical-timeline.compact .thumb {
+  height: 48px;
+}
+
+.surgical-timeline.compact .step-title {
+  font-size: 11px;
+}

@@ -1,0 +1,73 @@
+/**
+ * Modular anatomy model registry.
+ * Production models are GLB packs under /models; procedural fallback remains available.
+ */
+
+/** Active knee pack: Z-Anatomy (CC-BY-SA 4.0) */
+export const KNEE_MODEL_PACK = {
+  id: 'z-anatomy-knee',
+  label: 'Z-Anatomy Knee',
+  preferredFormat: 'glb',
+  license: 'CC-BY-SA-4.0',
+  attribution:
+    'Z-Anatomy — libre 3D atlas of anatomy (CC-BY-SA 4.0) https://www.z-anatomy.com/ · based on BodyParts3D (CC-BY-SA 2.1 JP)',
+  structures: {
+    femur: '/models/z-anatomy-knee/femur.glb',
+    tibia: '/models/z-anatomy-knee/tibia.glb',
+    patella: '/models/z-anatomy-knee/patella.glb',
+    fibula: '/models/z-anatomy-knee/fibula.glb',
+    acl: '/models/z-anatomy-knee/acl.glb',
+    pcl: '/models/z-anatomy-knee/pcl.glb',
+    mcl: '/models/z-anatomy-knee/mcl.glb',
+    lcl: '/models/z-anatomy-knee/lcl.glb',
+    meniscusMedial: '/models/z-anatomy-knee/meniscusMedial.glb',
+    meniscusLateral: '/models/z-anatomy-knee/meniscusLateral.glb',
+    // Z-Anatomy provides capsule instead of separate articular cartilage surfaces
+    capsule: '/models/z-anatomy-knee/capsule.glb',
+    fatPad: '/models/z-anatomy-knee/fatPad.glb',
+    muscles: '/models/z-anatomy-knee/muscles.glb',
+  },
+};
+
+/** Previous SPL pack retained for reference / fallback */
+export const SPL_KNEE_MODEL_PACK = {
+  id: 'spl-knee',
+  label: 'SPL Knee Atlas',
+  preferredFormat: 'glb',
+  license: 'Apache-2.0',
+  attribution:
+    "SPL Knee Atlas — Brigham and Women's Hospital Surgical Planning Laboratory (Apache-2.0)",
+  structures: {
+    femur: '/models/knee/femur.glb',
+    tibia: '/models/knee/tibia.glb',
+    patella: '/models/knee/patella.glb',
+    acl: '/models/knee/acl.glb',
+    pcl: '/models/knee/pcl.glb',
+    mcl: '/models/knee/mcl.glb',
+    lcl: '/models/knee/lcl.glb',
+    meniscusMedial: '/models/knee/meniscusMedial.glb',
+    meniscusLateral: '/models/knee/meniscusLateral.glb',
+    cartilageFemoral: '/models/knee/cartilageFemoral.glb',
+    cartilageMedial: '/models/knee/cartilageMedial.glb',
+    cartilageLateral: '/models/knee/cartilageLateral.glb',
+  },
+};
+
+export const STRUCTURE_COLORS = {
+  femur: '#f0e4d0',
+  tibia: '#eee0cc',
+  patella: '#f3e8d6',
+  fibula: '#ebe0cc',
+  acl: '#c9a67a',
+  pcl: '#b8956a',
+  mcl: '#b08962',
+  lcl: '#b08962',
+  meniscusMedial: '#d0b484',
+  meniscusLateral: '#d0b484',
+  cartilage: '#b8d0dc',
+  capsule: '#c4b09a',
+  fatPad: '#d4a090',
+  muscles: '#8f3e3e',
+  neurovascular: '#9a3f4c',
+  graft: '#d4b06a',
+};
