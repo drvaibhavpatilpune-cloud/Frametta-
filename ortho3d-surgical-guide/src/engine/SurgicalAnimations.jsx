@@ -355,20 +355,29 @@ function AnimatedGuideAndReamer({ progress, guideFrom, axisFrom, axisTo }) {
   return (
     <group>
       {/* Aiming guide approaches then seats on cortex, aimed along tunnel */}
-      <group position={guideSeat} quaternion={guideQuat}>
-        <mesh position={[0, -0.28, 0]} castShadow>
-          <cylinderGeometry args={[0.062, 0.078, 0.85, 18]} />
-          <MetalMat color="#7a8898" />
-        </mesh>
-        <mesh position={[0, 0.12, 0]} rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[0.11, 0.018, 12, 32]} />
-          <MetalMat color="#e4ecf2" />
-        </mesh>
-        <mesh position={[0.14, -0.15, 0]} rotation={[0, 0, 0.45]}>
-          <boxGeometry args={[0.09, 0.26, 0.045]} />
-          <meshStandardMaterial color="#1c2430" metalness={0.35} roughness={0.45} />
-        </mesh>
-      </group>
+      {/* Fade guide once reamer engages so cutting head stays readable */}
+      {reamIn < 0.55 && (
+        <group position={guideSeat} quaternion={guideQuat}>
+          <mesh position={[0, -0.28, 0]} castShadow>
+            <cylinderGeometry args={[0.062, 0.078, 0.85, 18]} />
+            <MetalMat color="#7a8898" matOpacity={1 - reamIn * 1.2} />
+          </mesh>
+          <mesh position={[0, 0.12, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[0.11, 0.018, 12, 32]} />
+            <MetalMat color="#e4ecf2" matOpacity={1 - reamIn * 1.2} />
+          </mesh>
+          <mesh position={[0.14, -0.15, 0]} rotation={[0, 0, 0.45]}>
+            <boxGeometry args={[0.09, 0.26, 0.045]} />
+            <meshStandardMaterial
+              color="#1c2430"
+              metalness={0.35}
+              roughness={0.45}
+              transparent={reamIn > 0.15}
+              opacity={Math.max(0.05, 1 - reamIn * 1.2)}
+            />
+          </mesh>
+        </group>
+      )}
 
       {/* Beath pin advances through bone */}
       <AlignedCylinder from={axisFrom} to={axisTo} radius={0.013} progress={pin} color="#f2f6fa" />

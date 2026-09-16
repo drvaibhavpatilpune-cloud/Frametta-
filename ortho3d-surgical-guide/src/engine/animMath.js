@@ -60,11 +60,13 @@ export const CINEMATIC_CAMERA = {
     { t: 1, position: [1.1, 0.7, 1.8], target: [0, 0.1, 0] },
   ],
   femoralTunnel: [
-    { t: 0, position: [2.6, 1.35, 2.8], target: [0.1, 0.2, 0] },
-    { t: 0.22, position: [2.0, 1.0, 1.9], target: [0.2, 0.28, 0] },
-    { t: 0.48, position: [1.45, 0.72, 1.05], target: [0.22, 0.26, -0.06] },
-    { t: 0.72, position: [1.15, 0.55, 0.85], target: [0.2, 0.24, -0.08] },
-    { t: 1, position: [1.65, 0.9, 1.55], target: [0.16, 0.22, -0.05] },
+    { t: 0, position: [2.8, 1.4, 2.6], target: [0.15, 0.2, 0] },
+    { t: 0.18, position: [2.2, 1.05, 1.7], target: [0.25, 0.28, 0.05] },
+    // Side-on during pin/ream so cutting head is visible (not down the bore)
+    { t: 0.4, position: [1.55, 0.55, 0.35], target: [0.28, 0.3, 0.05] },
+    { t: 0.65, position: [1.35, 0.85, -0.15], target: [0.22, 0.26, -0.02] },
+    { t: 0.85, position: [1.7, 0.7, 0.85], target: [0.18, 0.22, -0.05] },
+    { t: 1, position: [2.0, 1.0, 1.6], target: [0.15, 0.22, -0.05] },
   ],
   tibialTunnel: [
     { t: 0, position: [0.5, 1.7, 3.1], target: [0, 0, 0.1] },
