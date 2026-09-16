@@ -52,6 +52,16 @@ export const KNEE_STRUCTURES = [
     defaultVisible: true,
   },
   {
+    id: 'fibula',
+    name: 'Fibula',
+    patientName: 'Outer lower-leg bone',
+    category: 'bone',
+    description: 'Lateral leg bone articulating with the tibia at the proximal tibiofibular joint.',
+    patientDescription: 'The thinner bone on the outer side of the lower leg.',
+    color: '#ebe0cc',
+    defaultVisible: true,
+  },
+  {
     id: 'acl',
     name: 'Anterior Cruciate Ligament (ACL)',
     patientName: 'Front cruciate ligament',
@@ -115,20 +125,31 @@ export const KNEE_STRUCTURES = [
   },
   {
     id: 'cartilage',
-    name: 'Articular Cartilage',
-    patientName: 'Joint surface cartilage',
+    name: 'Joint capsule',
+    patientName: 'Joint covering',
     category: 'cartilage',
-    description: 'Hyaline cartilage covering femoral condyles, tibial plateaus, and patella.',
-    patientDescription: 'The smooth covering on the ends of the bones that lets the knee glide.',
-    color: '#c8dce8',
+    description:
+      'Articular capsule of the knee (Z-Anatomy). Use layer transparency to peek inside the joint.',
+    patientDescription: 'The soft covering around the knee joint.',
+    color: '#c4b09a',
     defaultVisible: true,
+  },
+  {
+    id: 'fatPad',
+    name: 'Infrapatellar fat pad',
+    patientName: 'Fat pad under the kneecap',
+    category: 'soft-tissue',
+    description: 'Infrapatellar (Hoffa) fat pad deep to the patellar tendon.',
+    patientDescription: 'Soft tissue cushion just below the kneecap.',
+    color: '#d4a090',
+    defaultVisible: false,
   },
   {
     id: 'muscles',
     name: 'Muscles (extensor / flexor)',
     patientName: 'Surrounding muscles',
     category: 'muscle',
-    description: 'Simplified representation of periarticular musculature around the knee.',
+    description: 'Selected periarticular musculature from Z-Anatomy around the knee.',
     patientDescription: 'The muscles around the knee that help you bend and straighten the leg.',
     color: '#a85c5c',
     defaultVisible: false,
@@ -162,15 +183,15 @@ export function getStructure(id) {
 export const LAYER_GROUPS = [
   {
     title: 'Bones',
-    ids: ['femur', 'tibia', 'patella'],
+    ids: ['femur', 'tibia', 'patella', 'fibula'],
   },
   {
     title: 'Ligaments',
     ids: ['acl', 'pcl', 'mcl', 'lcl'],
   },
   {
-    title: 'Menisci & Cartilage',
-    ids: ['meniscusMedial', 'meniscusLateral', 'cartilage'],
+    title: 'Menisci & capsule',
+    ids: ['meniscusMedial', 'meniscusLateral', 'cartilage', 'fatPad'],
   },
   {
     title: 'Soft tissue',

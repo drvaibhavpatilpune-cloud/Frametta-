@@ -3,7 +3,9 @@ import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { KNEE_MODEL_PACK, STRUCTURE_COLORS } from './modelRegistry';
 
-Object.values(KNEE_MODEL_PACK.structures).forEach((url) => useGLTF.preload(url));
+Object.values(KNEE_MODEL_PACK.structures)
+  .filter(Boolean)
+  .forEach((url) => useGLTF.preload(url));
 
 function canvasTex(canvas, { repeat = [1, 1], colorSpace = null, anisotropy = 8 } = {}) {
   const tex = new THREE.CanvasTexture(canvas);
@@ -310,7 +312,7 @@ export function createRealisticMaterials() {
       roughness: 0.55,
       envMapIntensity: 0.55,
     }),
-    // Opaque cartilage with hyaline sheen — not ghosted plastic
+    // Opaque cartilage / capsule with hyaline sheen — not ghosted plastic
     cartilage: new THREE.MeshPhysicalMaterial({
       color: STRUCTURE_COLORS.cartilage,
       roughness: 0.22,
@@ -324,6 +326,15 @@ export function createRealisticMaterials() {
       transparent: false,
       opacity: 1,
     }),
+    capsule: makeSoftMaterial(STRUCTURE_COLORS.capsule, {
+      roughness: 0.62,
+      envMapIntensity: 0.4,
+    }),
+    fatPad: makeSoftMaterial(STRUCTURE_COLORS.fatPad, {
+      roughness: 0.7,
+      envMapIntensity: 0.35,
+    }),
+    fibula: makeBoneMaterial(STRUCTURE_COLORS.fibula),
     muscles: new THREE.MeshStandardMaterial({
       color: STRUCTURE_COLORS.muscles,
       map: muscleMaps.map,
@@ -400,24 +411,23 @@ export function GlbStructure({ url, material, castShadow = true }) {
   return <primitive object={root} />;
 }
 
+/** Articular surfaces (SPL) or joint capsule (Z-Anatomy) depending on pack */
 export function CartilageGroup({ material }) {
+  const s = KNEE_MODEL_PACK.structures;
+  if (s.capsule) {
+    return <GlbStructure url={s.capsule} material={material} castShadow={false} />;
+  }
   return (
     <group>
-      <GlbStructure
-        url={KNEE_MODEL_PACK.structures.cartilageFemoral}
-        material={material}
-        castShadow={false}
-      />
-      <GlbStructure
-        url={KNEE_MODEL_PACK.structures.cartilageMedial}
-        material={material}
-        castShadow={false}
-      />
-      <GlbStructure
-        url={KNEE_MODEL_PACK.structures.cartilageLateral}
-        material={material}
-        castShadow={false}
-      />
+      {s.cartilageFemoral && (
+        <GlbStructure url={s.cartilageFemoral} material={material} castShadow={false} />
+      )}
+      {s.cartilageMedial && (
+        <GlbStructure url={s.cartilageMedial} material={material} castShadow={false} />
+      )}
+      {s.cartilageLateral && (
+        <GlbStructure url={s.cartilageLateral} material={material} castShadow={false} />
+      )}
     </group>
   );
 }

@@ -1,0 +1,65 @@
+{
+  "id": "z-anatomy-knee",
+  "label": "Z-Anatomy Knee",
+  "license": "CC-BY-SA-4.0",
+  "attribution": [
+    "Z-Anatomy \u2014 libre 3D atlas of anatomy (CC-BY-SA 4.0) https://www.z-anatomy.com/",
+    "Based on BodyParts3D / Database Center for Life Science (CC-BY-SA 2.1 JP)",
+    "Models via LluisV/Z-Anatomy (FBX); knee structures extracted & adapted for Ortho3D Surgical Guide"
+  ],
+  "scaleApplied": 0.044494594114193396,
+  "structures": {
+    "femur": {
+      "file": "femur.glb",
+      "faces": 3791
+    },
+    "tibia": {
+      "file": "tibia.glb",
+      "faces": 1670
+    },
+    "patella": {
+      "file": "patella.glb",
+      "faces": 276
+    },
+    "fibula": {
+      "file": "fibula.glb",
+      "faces": 1264
+    },
+    "acl": {
+      "file": "acl.glb",
+      "faces": 1576
+    },
+    "pcl": {
+      "file": "pcl.glb",
+      "faces": 788
+    },
+    "mcl": {
+      "file": "mcl.glb",
+      "faces": 408
+    },
+    "lcl": {
+      "file": "lcl.glb",
+      "faces": 80
+    },
+    "meniscusMedial": {
+      "file": "meniscusMedial.glb",
+      "faces": 284
+    },
+    "meniscusLateral": {
+      "file": "meniscusLateral.glb",
+      "faces": 468
+    },
+    "capsule": {
+      "file": "capsule.glb",
+      "faces": 2944
+    },
+    "fatPad": {
+      "file": "fatPad.glb",
+      "faces": 768
+    },
+    "muscles": {
+      "file": "muscles.glb",
+      "faces": 33518
+    }
+  }
+}

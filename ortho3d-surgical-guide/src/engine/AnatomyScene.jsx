@@ -142,6 +142,7 @@ export default function AnatomyScene({ step, stepProgress, viewMode, languageMod
       femur: true,
       tibia: true,
       patella: true,
+      fibula: true,
       acl: true,
       pcl: true,
       mcl: true,
@@ -149,6 +150,7 @@ export default function AnatomyScene({ step, stepProgress, viewMode, languageMod
       meniscusMedial: true,
       meniscusLateral: true,
       cartilage: true,
+      fatPad: false,
       muscles: false,
       neurovascular: false,
       graft: false,
@@ -248,6 +250,19 @@ export default function AnatomyScene({ step, stepProgress, viewMode, languageMod
           {...layerProps}
           {...matCtx}
         />
+        {paths.fibula && (
+          <BonePart
+            id="fibula"
+            url={paths.fibula}
+            visible={visibility.fibula !== false}
+            selected={selected === 'fibula'}
+            showLabel={!!labelFor('fibula')}
+            labelText={labelFor('fibula')}
+            labelOffset={[0.3, -0.8, 0]}
+            {...layerProps}
+            {...matCtx}
+          />
+        )}
         <BonePart
           id="acl"
           url={paths.acl}
@@ -319,8 +334,20 @@ export default function AnatomyScene({ step, stepProgress, viewMode, languageMod
           showLabel={!!labelFor('cartilage')}
           labelText={labelFor('cartilage')}
         >
-          <CartilageGroup material={cartilageMat} />
+          <CartilageGroup material={paths.capsule ? materials.capsule || cartilageMat : cartilageMat} />
         </StructureGroup>
+        {paths.fatPad && (
+          <BonePart
+            id="fatPad"
+            url={paths.fatPad}
+            visible={!!visibility.fatPad}
+            selected={selected === 'fatPad'}
+            showLabel={!!labelFor('fatPad')}
+            labelText={labelFor('fatPad')}
+            {...layerProps}
+            {...matCtx}
+          />
+        )}
       </Suspense>
 
       <StructureGroup
@@ -333,7 +360,11 @@ export default function AnatomyScene({ step, stepProgress, viewMode, languageMod
         showLabel={!!labelFor('muscles')}
         labelText={labelFor('muscles')}
       >
-        <MusclesMesh material={muscleMat} />
+        {paths.muscles ? (
+          <GlbStructure url={paths.muscles} material={muscleMat} />
+        ) : (
+          <MusclesMesh material={muscleMat} />
+        )}
       </StructureGroup>
 
       <StructureGroup

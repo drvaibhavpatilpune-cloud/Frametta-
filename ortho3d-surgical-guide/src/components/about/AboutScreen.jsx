@@ -33,9 +33,18 @@ export default function AboutScreen() {
       <section className="about-card panel">
         <h2>Anatomy attribution</h2>
         <p>
-          Knee meshes are derived from the <strong>SPL Knee Atlas</strong> (Brigham and Women&apos;s
-          Hospital Surgical Planning Laboratory), Apache License 2.0 — reoriented and decimated for
-          real-time mobile/tablet visualization.
+          Primary knee meshes are adapted from <strong>Z-Anatomy</strong> (The libre 3D atlas of
+          anatomy), licensed under <strong>CC BY-SA 4.0</strong> —{' '}
+          <a href="https://www.z-anatomy.com/" target="_blank" rel="noreferrer">
+            z-anatomy.com
+          </a>
+          . Z-Anatomy is based on BodyParts3D / The Database Center for Life Science (CC-BY-SA 2.1
+          JP). FBX sources via the LluisV/Z-Anatomy project; knee structures were extracted,
+          recentered, and exported to GLB for this viewer.
+        </p>
+        <p className="muted">
+          Legacy SPL Knee Atlas (Apache-2.0) meshes remain available under{' '}
+          <code>public/models/knee/</code> for comparison.
         </p>
       </section>
 
