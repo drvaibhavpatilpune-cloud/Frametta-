@@ -14,14 +14,23 @@ Interactive 3D orthopedic surgical education for mobile and tablet.
 - Presentation mode (arrows, marks, notes)
 - Data-driven procedure architecture (CMS-ready)
 
-## Stack
+## Mobile & tablet
 
-- React + Vite (tablet-first UI; Capacitor-ready for iOS/Android)
-- React Three Fiber / Three.js modular 3D engine (GLB/glTF-ready)
-- Zustand state
-- Procedural medical-style knee model for the MVP (replaceable with production GLB packs)
+- Responsive phone layout with floating Layers / Explain controls
+- Touch gestures: 1-finger rotate, pinch zoom, 2-finger pan
+- Install as PWA via browser “Add to Home Screen”
+- Native packaging (optional):
 
-> Flutter is a recommended alternate shell for a future native rewrite. This MVP keeps the UI layer and 3D engine modular so either shell can host the same content packs.
+```bash
+npm install @capacitor/core @capacitor/cli @capacitor/android @capacitor/ios
+npx cap add android
+npx cap add ios
+npm run cap:android   # or cap:ios on macOS
+```
+
+## Anatomy source
+
+Knee GLB meshes derived from **SPL Knee Atlas** (Apache-2.0), Brigham and Women's Hospital Surgical Planning Laboratory. See `public/models/knee/ATTRIBUTION.md`.
 
 ## Run
 

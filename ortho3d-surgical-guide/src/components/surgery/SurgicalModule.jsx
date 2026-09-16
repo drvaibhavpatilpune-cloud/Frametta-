@@ -14,11 +14,13 @@ import {
   ChevronUp,
   Bookmark,
 } from 'lucide-react';
+import { useEffect } from 'react';
 import AnatomyViewer from '../../engine/AnatomyViewer';
 import { CAMERA_PRESETS } from '../../engine/cameraPresets';
 import { useAppStore } from '../../store/useAppStore';
 import { getProcedure } from '../../data/procedures';
 import { getStructure, LAYER_GROUPS } from '../../data/anatomy';
+import { useIsMobile } from '../../hooks/useMediaQuery';
 import SurgicalTimeline from './SurgicalTimeline';
 import ExplanationPanel from './ExplanationPanel';
 import OrientationIndicator from './OrientationIndicator';
@@ -26,6 +28,7 @@ import PresentationOverlay from './PresentationOverlay';
 import './SurgicalModule.css';
 
 export default function SurgicalModule() {
+  const isMobile = useIsMobile();
   const activeProcedureId = useAppStore((s) => s.activeProcedureId);
   const procedure = getProcedure(activeProcedureId) || getProcedure('acl-reconstruction');
   const currentStepIndex = useAppStore((s) => s.currentStepIndex);
@@ -70,6 +73,13 @@ export default function SurgicalModule() {
 
   const selectedInfo = selected ? getStructure(selected) : null;
 
+  useEffect(() => {
+    if (isMobile) {
+      setLayersOpen(false);
+      setExplanationOpen(false);
+    }
+  }, [isMobile, setLayersOpen, setExplanationOpen]);
+
   const onStepSelect = (index) => {
     setCurrentStepIndex(index);
     const s = procedure.steps[index];
@@ -77,13 +87,16 @@ export default function SurgicalModule() {
   };
 
   return (
-    <div className={`surgical-module ${presentationMode ? 'presentation' : ''}`}>
+    <div
+      className={`surgical-module ${presentationMode ? 'presentation' : ''} ${isMobile ? 'mobile' : ''}`}
+    >
       <AnatomyViewer step={step} viewMode={viewMode} languageMode={languageMode} />
 
       {!presentationMode && (
         <div className="sm-topbar">
           <button className="btn btn-ghost sm-back" onClick={() => setTab('procedures')}>
-            <X size={16} /> Close
+            <X size={16} />
+            {!isMobile && ' Close'}
           </button>
           <div className="sm-title-block">
             <h1>{procedure.name}</h1>
@@ -98,20 +111,54 @@ export default function SurgicalModule() {
                 className={`mode-btn ${viewMode === m ? 'active' : ''}`}
                 onClick={() => setViewMode(m)}
               >
-                {m}
+                {isMobile ? m.slice(0, 3) : m}
               </button>
             ))}
           </div>
+          {!isMobile && (
+            <button
+              className={`btn btn-ghost ${languageMode === 'patient' ? 'active' : ''}`}
+              onClick={() =>
+                setLanguageMode(languageMode === 'patient' ? 'professional' : 'patient')
+              }
+            >
+              {languageMode === 'patient' ? 'Patient' : 'Professional'}
+            </button>
+          )}
+          <button className="btn btn-primary" onClick={() => setPresentationMode(true)}>
+            <Presentation size={16} />
+            {!isMobile && ' Present'}
+          </button>
+        </div>
+      )}
+
+      {isMobile && !presentationMode && (
+        <div className="sm-mobile-fabs">
           <button
-            className={`btn btn-ghost ${languageMode === 'patient' ? 'active' : ''}`}
+            className={`fab ${layersOpen ? 'active' : ''}`}
+            onClick={() => {
+              setLayersOpen(!layersOpen);
+              if (!layersOpen) setExplanationOpen(false);
+            }}
+          >
+            <Layers size={18} />
+          </button>
+          <button
+            className={`fab ${explanationOpen ? 'active' : ''}`}
+            onClick={() => {
+              setExplanationOpen(!explanationOpen);
+              if (!explanationOpen) setLayersOpen(false);
+            }}
+          >
+            <Eye size={18} />
+          </button>
+          <button
+            className={`fab ${languageMode === 'patient' ? 'active' : ''}`}
             onClick={() =>
               setLanguageMode(languageMode === 'patient' ? 'professional' : 'patient')
             }
           >
-            {languageMode === 'patient' ? 'Patient' : 'Professional'}
-          </button>
-          <button className="btn btn-primary" onClick={() => setPresentationMode(true)}>
-            <Presentation size={16} /> Present
+            {languageMode === 'patient' ? 'Pt' : 'Pro'}
           </button>
         </div>
       )}
@@ -189,7 +236,9 @@ export default function SurgicalModule() {
 
       {!presentationMode && (
         <>
-          <aside className={`sm-layers panel ${layersOpen ? 'open' : 'collapsed'}`}>
+          <aside
+            className={`sm-layers panel ${layersOpen ? 'open' : 'collapsed'} ${isMobile && !layersOpen ? 'hidden-mobile' : ''}`}
+          >
             <button className="panel-toggle" onClick={() => setLayersOpen(!layersOpen)}>
               <Layers size={16} />
               <span>Layers</span>
@@ -244,8 +293,8 @@ export default function SurgicalModule() {
             )}
           </aside>
 
-          {(selectedInfo || viewMode === 'teaching' || explanationOpen) && (
-            <div className="sm-right-stack">
+          {(selectedInfo || ((viewMode === 'teaching' || viewMode === 'surgical') && (explanationOpen || !isMobile))) && (
+            <div className={`sm-right-stack ${isMobile && !explanationOpen && !selectedInfo ? 'hidden-mobile' : ''}`}>
               {selectedInfo && (
                 <div className="sm-selection panel">
                   <div className="sel-name">
@@ -271,11 +320,11 @@ export default function SurgicalModule() {
                   </div>
                 </div>
               )}
-              {(viewMode === 'teaching' || viewMode === 'surgical') && (
+              {(viewMode === 'teaching' || viewMode === 'surgical') && (explanationOpen || !isMobile) && (
                 <ExplanationPanel
                   step={step}
                   languageMode={languageMode}
-                  open={explanationOpen}
+                  open={explanationOpen || !isMobile}
                   onToggle={() => setExplanationOpen(!explanationOpen)}
                 />
               )}

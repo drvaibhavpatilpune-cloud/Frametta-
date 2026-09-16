@@ -31,6 +31,25 @@ export default function AboutScreen() {
       </section>
 
       <section className="about-card panel">
+        <h2>Anatomy attribution</h2>
+        <p>
+          Knee meshes are derived from the <strong>SPL Knee Atlas</strong> (Brigham and Women&apos;s
+          Hospital Surgical Planning Laboratory), Apache License 2.0 — reoriented and decimated for
+          real-time mobile/tablet visualization.
+        </p>
+      </section>
+
+      <section className="about-card panel">
+        <h2>Mobile & tablet</h2>
+        <ul>
+          <li>Installable PWA (Add to Home Screen)</li>
+          <li>Touch: one-finger rotate, pinch zoom, two-finger pan</li>
+          <li>Phone layout with floating panels and compact timeline</li>
+          <li>Capacitor-ready for native iOS/Android packaging (`capacitor.config.json`)</li>
+        </ul>
+      </section>
+
+      <section className="about-card panel">
         <h2>MVP scope</h2>
         <ul>
           <li>Knee anatomy complex (procedural medical visualization; GLB-ready architecture)</li>

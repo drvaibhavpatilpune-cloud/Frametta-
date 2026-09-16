@@ -1,0 +1,67 @@
+{
+  "source": "SPL Knee Atlas",
+  "license": "Apache-2.0",
+  "citation": "Brigham and Women's Hospital Surgical Planning Laboratory Knee Atlas",
+  "structures": {
+    "femur": {
+      "file": "models/knee/femur.glb",
+      "faces": 22000,
+      "bytes": 396800
+    },
+    "tibia": {
+      "file": "models/knee/tibia.glb",
+      "faces": 20000,
+      "bytes": 360804
+    },
+    "patella": {
+      "file": "models/knee/patella.glb",
+      "faces": 6000,
+      "bytes": 108796
+    },
+    "acl": {
+      "file": "models/knee/acl.glb",
+      "faces": 3500,
+      "bytes": 63796
+    },
+    "pcl": {
+      "file": "models/knee/pcl.glb",
+      "faces": 3500,
+      "bytes": 63812
+    },
+    "mcl": {
+      "file": "models/knee/mcl.glb",
+      "faces": 3000,
+      "bytes": 54800
+    },
+    "lcl": {
+      "file": "models/knee/lcl.glb",
+      "faces": 3000,
+      "bytes": 54796
+    },
+    "meniscusMedial": {
+      "file": "models/knee/meniscusMedial.glb",
+      "faces": 3000,
+      "bytes": 54796
+    },
+    "meniscusLateral": {
+      "file": "models/knee/meniscusLateral.glb",
+      "faces": 3000,
+      "bytes": 54680
+    },
+    "cartilageFemoral": {
+      "file": "models/knee/cartilageFemoral.glb",
+      "faces": 6000,
+      "bytes": 108724
+    },
+    "cartilageMedial": {
+      "file": "models/knee/cartilageMedial.glb",
+      "faces": 3000,
+      "bytes": 54788
+    },
+    "cartilageLateral": {
+      "file": "models/knee/cartilageLateral.glb",
+      "faces": 3000,
+      "bytes": 54776
+    }
+  }
+}

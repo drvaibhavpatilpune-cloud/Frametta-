@@ -13,13 +13,14 @@ const modelRegistry = {
     id: 'knee',
     label: 'Knee complex',
     preferredFormat: 'glb',
-    // Procedural MVP mesh set; replace with CDN GLB URLs when assets are ready.
     sources: {
-      glb: null,
+      glb: '/models/knee/manifest.json',
       gltf: null,
-      procedural: 'knee-parametric-v1',
+      procedural: null,
     },
-    lod: ['high', 'medium'],
+    attribution:
+      "SPL Knee Atlas — Brigham and Women's Hospital Surgical Planning Laboratory (Apache-2.0)",
+    lod: ['mobile', 'high'],
     structures: KNEE_STRUCTURES.map((s) => s.id),
   },
 };

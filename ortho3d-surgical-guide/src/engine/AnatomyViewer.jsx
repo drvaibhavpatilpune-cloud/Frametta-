@@ -16,8 +16,8 @@ function CameraRig() {
   const autoRotate = useAppStore((s) => s.autoRotate);
   const setOrientation = useAppStore((s) => s.setOrientation);
   const customCameras = useAppStore((s) => s.customCameras);
-  const targetPos = useRef(new THREE.Vector3(2.8, 1.6, 3.2));
-  const targetLook = useRef(new THREE.Vector3(0, 0.05, 0));
+  const targetPos = useRef(new THREE.Vector3(2.6, 1.2, 3.0));
+  const targetLook = useRef(new THREE.Vector3(0, 0.1, 0));
   const animating = useRef(false);
 
   useEffect(() => {
@@ -53,11 +53,18 @@ function CameraRig() {
       ref={controls}
       makeDefault
       enableDamping
-      dampingFactor={0.08}
-      minDistance={1.4}
-      maxDistance={9}
-      target={[0, 0.05, 0]}
-      autoRotateSpeed={0.6}
+      dampingFactor={0.1}
+      rotateSpeed={0.85}
+      zoomSpeed={0.9}
+      panSpeed={0.7}
+      minDistance={1.6}
+      maxDistance={8}
+      target={[0, 0.1, 0]}
+      autoRotateSpeed={0.55}
+      touches={{
+        ONE: THREE.TOUCH.ROTATE,
+        TWO: THREE.TOUCH.DOLLY_PAN,
+      }}
     />
   );
 }
@@ -65,16 +72,18 @@ function CameraRig() {
 function Lights() {
   return (
     <>
-      <ambientLight intensity={0.45} />
+      <ambientLight intensity={0.55} />
       <directionalLight
         castShadow
-        position={[4, 6, 3]}
-        intensity={1.15}
+        position={[3.5, 5.5, 2.8]}
+        intensity={1.35}
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
+        shadow-bias={-0.0002}
       />
-      <directionalLight position={[-3, 2, -2]} intensity={0.35} color="#a8c4d8" />
-      <hemisphereLight args={['#d8e4f0', '#1a222c', 0.35]} />
+      <directionalLight position={[-2.5, 1.8, -2]} intensity={0.55} color="#b7cce0" />
+      <directionalLight position={[0, 2, 4]} intensity={0.35} color="#fff6e8" />
+      <hemisphereLight args={['#e7eef6', '#1b2430', 0.55]} />
     </>
   );
 }
@@ -83,9 +92,7 @@ function StepPlayback({ step }) {
   const stepPlaying = useAppStore((s) => s.stepPlaying);
   const stepPaused = useAppStore((s) => s.stepPaused);
   const setStepProgress = useAppStore((s) => s.setStepProgress);
-  const stepProgress = useAppStore((s) => s.stepProgress);
   const stepReplayNonce = useAppStore((s) => s.stepReplayNonce);
-  const nextStep = useAppStore((s) => s.nextStep);
   const pauseStep = useAppStore((s) => s.pauseStep);
   const elapsed = useRef(0);
 
@@ -100,9 +107,7 @@ function StepPlayback({ step }) {
     elapsed.current += dt;
     const p = Math.min(1, elapsed.current / dur);
     setStepProgress(p);
-    if (p >= 1) {
-      pauseStep();
-    }
+    if (p >= 1) pauseStep();
   });
 
   return null;
@@ -110,18 +115,26 @@ function StepPlayback({ step }) {
 
 export default function AnatomyViewer({ step, viewMode, languageMode }) {
   const stepProgress = useAppStore((s) => s.stepProgress);
+  const isMobile =
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 820px)').matches;
 
   return (
     <div className="anatomy-viewer">
       <Canvas
-        shadows
-        dpr={[1, 1.75]}
-        camera={{ position: [2.8, 1.6, 3.2], fov: 42, near: 0.1, far: 50 }}
-        gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+        shadows={!isMobile}
+        dpr={isMobile ? [1, 1.5] : [1, 1.75]}
+        camera={{ position: [2.6, 1.2, 3.0], fov: isMobile ? 48 : 42, near: 0.1, far: 50 }}
+        gl={{
+          antialias: true,
+          alpha: true,
+          powerPreference: 'high-performance',
+          toneMapping: THREE.ACESFilmicToneMapping,
+          toneMappingExposure: 1.05,
+        }}
         onPointerMissed={() => useAppStore.getState().setSelectedStructure(null)}
       >
         <color attach="background" args={['#0b1218']} />
-        <fog attach="fog" args={['#0b1218', 8, 18]} />
+        <fog attach="fog" args={['#0b1218', 9, 16]} />
         <Lights />
         <Suspense fallback={null}>
           <AnatomyScene
@@ -130,18 +143,13 @@ export default function AnatomyViewer({ step, viewMode, languageMode }) {
             viewMode={viewMode}
             languageMode={languageMode}
           />
-          <ContactShadows
-            position={[0, -2.15, 0]}
-            opacity={0.35}
-            scale={10}
-            blur={2.5}
-            far={4}
-          />
+          <ContactShadows position={[0, -2.05, 0]} opacity={0.4} scale={12} blur={2.8} far={5} />
         </Suspense>
         <CameraRig />
         <StepPlayback step={step} />
       </Canvas>
       <div className="viewer-vignette" />
+      <div className="viewer-loading-hint">Drag to rotate · Pinch to zoom</div>
     </div>
   );
 }
