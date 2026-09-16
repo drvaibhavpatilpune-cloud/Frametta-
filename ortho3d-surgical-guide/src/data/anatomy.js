@@ -1,0 +1,179 @@
+/** Modular anatomy catalog — structures load independently by region */
+
+export const ANATOMY_CATEGORIES = [
+  { id: 'shoulder', label: 'Shoulder', region: true },
+  { id: 'elbow', label: 'Elbow', region: true },
+  { id: 'wrist', label: 'Wrist', region: true },
+  { id: 'hand', label: 'Hand', region: true },
+  { id: 'spine', label: 'Spine', region: true },
+  { id: 'hip', label: 'Hip', region: true },
+  { id: 'knee', label: 'Knee', region: true, available: true },
+  { id: 'ankle', label: 'Ankle', region: true },
+  { id: 'foot', label: 'Foot', region: true },
+  { id: 'long-bones', label: 'Long bones', region: true },
+  { id: 'muscles', label: 'Muscles', tissue: true },
+  { id: 'ligaments', label: 'Ligaments', tissue: true },
+  { id: 'tendons', label: 'Tendons', tissue: true },
+  { id: 'nerves', label: 'Nerves', tissue: true },
+  { id: 'vascular', label: 'Vascular structures', tissue: true },
+];
+
+export const KNEE_STRUCTURES = [
+  {
+    id: 'femur',
+    name: 'Femur',
+    patientName: 'Thigh bone',
+    category: 'bone',
+    description:
+      'Distal femur forming the femoral condyles and intercondylar notch of the knee joint.',
+    patientDescription: 'The large bone of the thigh that forms the top of the knee joint.',
+    color: '#d4c4a8',
+    defaultVisible: true,
+  },
+  {
+    id: 'tibia',
+    name: 'Tibia',
+    patientName: 'Shin bone',
+    category: 'bone',
+    description:
+      'Proximal tibia with medial and lateral plateaus that articulate with the femoral condyles.',
+    patientDescription: 'The main bone of the lower leg that forms the bottom of the knee.',
+    color: '#cfc0a0',
+    defaultVisible: true,
+  },
+  {
+    id: 'patella',
+    name: 'Patella',
+    patientName: 'Kneecap',
+    category: 'bone',
+    description: 'Sesamoid bone within the extensor mechanism that articulates with the trochlea.',
+    patientDescription: 'The kneecap that sits in front of the knee and helps the knee straighten.',
+    color: '#ddd0b8',
+    defaultVisible: true,
+  },
+  {
+    id: 'acl',
+    name: 'Anterior Cruciate Ligament (ACL)',
+    patientName: 'Front cruciate ligament',
+    category: 'ligament',
+    description:
+      'Intra-articular ligament resisting anterior tibial translation and rotational instability.',
+    patientDescription:
+      'An important ligament inside the knee that keeps the shin from sliding too far forward.',
+    color: '#c9a882',
+    defaultVisible: true,
+  },
+  {
+    id: 'pcl',
+    name: 'Posterior Cruciate Ligament (PCL)',
+    patientName: 'Back cruciate ligament',
+    category: 'ligament',
+    description: 'Intra-articular ligament resisting posterior tibial translation.',
+    patientDescription: 'A ligament that keeps the shin from sliding too far backward.',
+    color: '#b8956f',
+    defaultVisible: true,
+  },
+  {
+    id: 'mcl',
+    name: 'Medial Collateral Ligament (MCL)',
+    patientName: 'Inner side ligament',
+    category: 'ligament',
+    description: 'Extra-articular ligament stabilizing the medial knee against valgus stress.',
+    patientDescription: 'The ligament on the inner side of the knee that provides side stability.',
+    color: '#b89070',
+    defaultVisible: true,
+  },
+  {
+    id: 'lcl',
+    name: 'Lateral Collateral Ligament (LCL)',
+    patientName: 'Outer side ligament',
+    category: 'ligament',
+    description: 'Extra-articular ligament stabilizing the lateral knee against varus stress.',
+    patientDescription: 'The ligament on the outer side of the knee that provides side stability.',
+    color: '#b89070',
+    defaultVisible: true,
+  },
+  {
+    id: 'meniscusMedial',
+    name: 'Medial Meniscus',
+    patientName: 'Inner cartilage cushion',
+    category: 'meniscus',
+    description: 'C-shaped fibrocartilage on the medial tibial plateau for load distribution.',
+    patientDescription: 'A cushion inside the knee on the inner side that helps absorb shock.',
+    color: '#d8c098',
+    defaultVisible: true,
+  },
+  {
+    id: 'meniscusLateral',
+    name: 'Lateral Meniscus',
+    patientName: 'Outer cartilage cushion',
+    category: 'meniscus',
+    description: 'More circular fibrocartilage on the lateral tibial plateau.',
+    patientDescription: 'A cushion inside the knee on the outer side that helps absorb shock.',
+    color: '#d8c098',
+    defaultVisible: true,
+  },
+  {
+    id: 'cartilage',
+    name: 'Articular Cartilage',
+    patientName: 'Joint surface cartilage',
+    category: 'cartilage',
+    description: 'Hyaline cartilage covering femoral condyles, tibial plateaus, and patella.',
+    patientDescription: 'The smooth covering on the ends of the bones that lets the knee glide.',
+    color: '#c8dce8',
+    defaultVisible: true,
+  },
+  {
+    id: 'muscles',
+    name: 'Muscles (extensor / flexor)',
+    patientName: 'Surrounding muscles',
+    category: 'muscle',
+    description: 'Simplified representation of periarticular musculature around the knee.',
+    patientDescription: 'The muscles around the knee that help you bend and straighten the leg.',
+    color: '#a85c5c',
+    defaultVisible: false,
+  },
+  {
+    id: 'neurovascular',
+    name: 'Neurovascular structures',
+    patientName: 'Nerves and blood vessels',
+    category: 'neurovascular',
+    description: 'Popliteal vessels and major periarticular neural pathways (schematic).',
+    patientDescription: 'Important nerves and blood vessels near the back of the knee.',
+    color: '#a84858',
+    defaultVisible: false,
+  },
+  {
+    id: 'graft',
+    name: 'ACL Graft',
+    patientName: 'New ligament graft',
+    category: 'graft',
+    description: 'Reconstructed ACL graft spanning femoral and tibial tunnels.',
+    patientDescription: 'The new ligament tissue used to replace the torn ACL.',
+    color: '#e8c46a',
+    defaultVisible: false,
+  },
+];
+
+export function getStructure(id) {
+  return KNEE_STRUCTURES.find((s) => s.id === id);
+}
+
+export const LAYER_GROUPS = [
+  {
+    title: 'Bones',
+    ids: ['femur', 'tibia', 'patella'],
+  },
+  {
+    title: 'Ligaments',
+    ids: ['acl', 'pcl', 'mcl', 'lcl'],
+  },
+  {
+    title: 'Menisci & Cartilage',
+    ids: ['meniscusMedial', 'meniscusLateral', 'cartilage'],
+  },
+  {
+    title: 'Soft tissue',
+    ids: ['muscles', 'neurovascular', 'graft'],
+  },
+];

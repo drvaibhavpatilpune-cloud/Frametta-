@@ -1,0 +1,41 @@
+.anatomy-viewer {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 40%, #14202c 0%, #0b1218 70%);
+}
+
+.anatomy-viewer canvas {
+  touch-action: none;
+}
+
+.viewer-vignette {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 45%, rgba(0, 0, 0, 0.35) 100%);
+}
+
+.structure-label {
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: rgba(10, 16, 22, 0.88);
+  border: 1px solid rgba(62, 168, 168, 0.45);
+  color: #e8eef4;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+.structure-label::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  width: 1px;
+  height: 6px;
+  background: rgba(62, 168, 168, 0.6);
+  transform: translateX(-50%);
+}

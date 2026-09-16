@@ -1,0 +1,247 @@
+.surgical-module {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.sm-topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 28;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: linear-gradient(to bottom, rgba(7, 11, 16, 0.88), rgba(7, 11, 16, 0.35), transparent);
+  flex-wrap: wrap;
+}
+
+.sm-title-block {
+  flex: 1;
+  min-width: 140px;
+}
+
+.sm-title-block h1 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.sm-title-block span {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.sm-mode-switch {
+  display: flex;
+  padding: 3px;
+  border-radius: var(--radius-md);
+  background: rgba(18, 26, 34, 0.9);
+  border: 1px solid var(--border-subtle);
+}
+
+.mode-btn {
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+  color: var(--text-muted);
+}
+
+.mode-btn.active {
+  background: var(--accent-soft);
+  color: var(--text-primary);
+}
+
+.sm-camera-rail {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 26;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 58vh;
+  overflow: auto;
+  padding: 6px;
+  border-radius: var(--radius-lg);
+  background: rgba(10, 16, 22, 0.78);
+  border: 1px solid var(--border-subtle);
+  backdrop-filter: blur(10px);
+}
+
+.sm-playback {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(var(--timeline-height) + 8px);
+  z-index: 26;
+  display: flex;
+  gap: 6px;
+  padding: 6px;
+  border-radius: 999px;
+  background: rgba(10, 16, 22, 0.82);
+  border: 1px solid var(--border-subtle);
+  backdrop-filter: blur(10px);
+}
+
+.rail-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  color: var(--text-secondary);
+  background: transparent;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.rail-btn.text {
+  width: auto;
+  min-width: 40px;
+  padding: 0 8px;
+}
+
+.rail-btn:hover,
+.rail-btn.active {
+  background: var(--accent-soft);
+  color: var(--text-primary);
+}
+
+.sm-layers {
+  position: absolute;
+  left: 70px;
+  top: 72px;
+  z-index: 27;
+  width: min(280px, calc(100vw - 90px));
+  max-height: calc(100vh - 220px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.sm-layers.collapsed {
+  width: auto;
+}
+
+.layers-body {
+  padding: 10px 12px 14px;
+  overflow: auto;
+}
+
+.layer-group {
+  margin-bottom: 12px;
+}
+
+.layer-group-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.layer-row {
+  display: grid;
+  grid-template-columns: 18px 1fr 64px;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.layer-row input[type='checkbox'] {
+  accent-color: var(--accent);
+  width: 16px;
+  height: 16px;
+}
+
+.layer-row input[type='range'] {
+  width: 64px;
+  accent-color: var(--accent);
+}
+
+.layer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.sm-right-stack {
+  position: absolute;
+  right: 16px;
+  top: 170px;
+  z-index: 27;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: calc(100vh - 300px);
+  overflow: auto;
+}
+
+.sm-selection {
+  width: min(340px, 92vw);
+  padding: 14px;
+}
+
+.sel-name {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.sm-selection p {
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.sel-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.surgical-module.presentation .sm-playback {
+  bottom: calc(var(--timeline-height) + 88px);
+}
+
+@media (max-width: 900px) {
+  .sm-camera-rail {
+    top: auto;
+    bottom: calc(var(--timeline-height) + 58px);
+    left: 10px;
+    transform: none;
+    flex-direction: row;
+    max-width: calc(100vw - 20px);
+    max-height: none;
+  }
+
+  .sm-layers {
+    left: 10px;
+    top: auto;
+    bottom: calc(var(--timeline-height) + 110px);
+    max-height: 40vh;
+  }
+
+  .sm-right-stack {
+    right: 10px;
+    top: auto;
+    bottom: calc(var(--timeline-height) + 110px);
+    max-height: 36vh;
+  }
+
+  .sm-mode-switch .mode-btn {
+    padding: 0 8px;
+  }
+}

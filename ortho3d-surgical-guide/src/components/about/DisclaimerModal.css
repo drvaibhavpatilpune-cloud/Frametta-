@@ -1,0 +1,38 @@
+.disclaimer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(4, 8, 12, 0.72);
+  backdrop-filter: blur(8px);
+}
+
+.disclaimer-modal {
+  width: min(440px, 100%);
+  padding: 24px;
+}
+
+.disc-brand {
+  font-family: var(--font-display);
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+
+.disclaimer-modal h2 {
+  margin: 0 0 12px;
+  font-size: 18px;
+}
+
+.disclaimer-modal p {
+  margin: 0 0 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.disclaimer-modal .btn {
+  width: 100%;
+  margin-top: 8px;
+}
