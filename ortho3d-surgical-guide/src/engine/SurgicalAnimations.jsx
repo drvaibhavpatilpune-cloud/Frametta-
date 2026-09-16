@@ -193,19 +193,33 @@ function PulseHighlight({ position, color = '#e8c46a', progress }) {
   );
 }
 
-function CutGuideLine({ points, progress, color = '#d9776f' }) {
+/** Dashed surgical cut guide — matches reference teaching videos */
+function CutGuideLine({ points, progress, color = '#c94a45' }) {
   const curve = useMemo(
     () => new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(...p))),
     [points]
   );
-  const geo = useMemo(() => {
-    const segs = Math.max(2, Math.floor(progress * 48));
-    return new THREE.TubeGeometry(curve, segs, 0.01, 8, false);
+  const dashPts = useMemo(() => {
+    const total = Math.max(4, Math.floor(progress * 64));
+    const pts = [];
+    for (let i = 0; i < total; i++) {
+      if (i % 3 === 2) continue; // dash gap
+      pts.push(curve.getPoint(i / Math.max(1, total - 1)));
+    }
+    return pts;
   }, [curve, progress]);
-  if (progress < 0.02) return null;
+
+  const geo = useMemo(() => {
+    if (dashPts.length < 2) return null;
+    const segs = Math.max(2, dashPts.length);
+    const path = new THREE.CatmullRomCurve3(dashPts);
+    return new THREE.TubeGeometry(path, segs, 0.008, 6, false);
+  }, [dashPts]);
+
+  if (progress < 0.02 || !geo) return null;
   return (
     <mesh geometry={geo}>
-      <meshBasicMaterial color={color} transparent opacity={0.92} />
+      <meshBasicMaterial color={color} transparent opacity={0.95} depthTest={false} />
     </mesh>
   );
 }
@@ -599,7 +613,7 @@ export default function SurgicalAnimations({ animation, progress, visible }) {
               [-0.14, -0.05, 0.14],
             ]}
             progress={phase(p, 0.2, 0.9)}
-            color="#e8c46a"
+            color="#c94a45"
           />
           <AnimatedProbe progress={phase(p, 0.15, 0.85)} />
         </group>

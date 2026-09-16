@@ -30,9 +30,10 @@ const cartilageMat = () =>
     color: '#b9d0dc',
     roughness: 0.22,
     metalness: 0.0,
-    transparent: true,
-    opacity: 0.55,
-    depthWrite: false,
+    clearcoat: 0.5,
+    clearcoatRoughness: 0.3,
+    sheen: 0.3,
+    sheenColor: new THREE.Color('#d8e8f0'),
   });
 
 function makeLatheBone(profile, segments = 48) {

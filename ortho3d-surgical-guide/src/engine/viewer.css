@@ -1,8 +1,9 @@
 .anatomy-viewer {
   position: absolute;
   inset: 0;
+  /* Warm clinical studio — not pure black void */
   background:
-    radial-gradient(ellipse 80% 60% at 50% 42%, #1a2430 0%, #0a1016 62%, #06090d 100%);
+    radial-gradient(ellipse 75% 55% at 50% 40%, #3a3836 0%, #2a2928 55%, #1c1b1a 100%);
 }
 
 .anatomy-viewer canvas {
@@ -13,7 +14,7 @@
   pointer-events: none;
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at center, transparent 45%, rgba(0, 0, 0, 0.35) 100%);
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(12, 10, 8, 0.4) 100%);
 }
 
 .viewer-loading-hint {

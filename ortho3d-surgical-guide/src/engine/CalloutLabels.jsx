@@ -4,8 +4,8 @@ import * as THREE from 'three';
 import './CalloutLabels.css';
 
 /**
- * Medical callout: label text + thin leader line + circular anchor
- * Matches cinematic surgical education style.
+ * Medical callout matching teaching-video style:
+ * white label + elbow leader + hollow circle anchor.
  */
 export function CalloutLabel({
   anchor = [0, 0, 0],
@@ -15,27 +15,41 @@ export function CalloutLabel({
 }) {
   const points = useMemo(() => {
     const a = new THREE.Vector3(...anchor);
+    // Elbow bend like reference (horizontal then diagonal to label)
+    const mid = new THREE.Vector3(
+      anchor[0] + labelOffset[0] * 0.45,
+      anchor[1] + labelOffset[1] * 0.15,
+      anchor[2] + labelOffset[2] * 0.35
+    );
     const b = new THREE.Vector3(
       anchor[0] + labelOffset[0],
       anchor[1] + labelOffset[1],
       anchor[2] + labelOffset[2]
     );
-    return [a, b];
+    return [a, mid, b];
   }, [anchor, labelOffset]);
 
   if (!text) return null;
 
   return (
     <group>
+      {/* Hollow circle anchor */}
       <mesh position={anchor}>
-        <sphereGeometry args={[0.028, 16, 16]} />
-        <meshBasicMaterial color="#ffffff" />
+        <ringGeometry args={[0.022, 0.032, 24]} />
+        <meshBasicMaterial color="#ffffff" side={THREE.DoubleSide} depthTest={false} />
       </mesh>
       <mesh position={anchor}>
-        <sphereGeometry args={[0.045, 16, 16]} />
-        <meshBasicMaterial color="#ffffff" transparent opacity={0.25} depthWrite={false} />
+        <circleGeometry args={[0.012, 20]} />
+        <meshBasicMaterial color="#ffffff" transparent opacity={0.15} depthTest={false} />
       </mesh>
-      <Line points={points} color="#ffffff" lineWidth={1.5} transparent opacity={0.85} />
+      <Line
+        points={points}
+        color="#ffffff"
+        lineWidth={1.4}
+        transparent
+        opacity={0.92}
+        depthTest={false}
+      />
       <Html
         position={[
           anchor[0] + labelOffset[0],

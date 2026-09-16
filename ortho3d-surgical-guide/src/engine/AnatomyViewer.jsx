@@ -1,7 +1,14 @@
 import { Suspense, useEffect, useRef } from 'react';
 import { Canvas, useThree, useFrame } from '@react-three/fiber';
-import { OrbitControls, ContactShadows } from '@react-three/drei';
+import {
+  OrbitControls,
+  ContactShadows,
+  SoftShadows,
+  AccumulativeShadows,
+  RandomizedLight,
+} from '@react-three/drei';
 import * as THREE from 'three';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import AnatomyScene from './AnatomyScene';
 import { CAMERA_PRESETS, orientationFromCamera } from './cameraPresets';
 import { CINEMATIC_CAMERA, sampleCameraPath } from './animMath';
@@ -40,10 +47,6 @@ function CameraRig({ step }) {
   useFrame((_, dt) => {
     if (controls.current) {
       controls.current.autoRotate = autoRotate && !cinematicMode;
-      // If user starts dragging during cinematic, pause camera path briefly
-      if (controls.current.enabled && cinematicMode) {
-        // keep enabled so they can still explore
-      }
     }
 
     const path = cinematicMode && step?.animation ? CINEMATIC_CAMERA[step.animation] : null;
@@ -99,23 +102,49 @@ function CameraRig({ step }) {
   );
 }
 
-function Lights() {
+/** Local studio HDR — wet tissue specular without CDN fetch */
+function StudioEnvironment({ intensity = 0.42 }) {
+  const { gl, scene } = useThree();
+  useEffect(() => {
+    const pmrem = new THREE.PMREMGenerator(gl);
+    const env = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    scene.environment = env;
+    scene.environmentIntensity = intensity;
+    return () => {
+      scene.environment = null;
+      env.dispose();
+      pmrem.dispose();
+    };
+  }, [gl, scene, intensity]);
+  return null;
+}
+
+/** Soft medical-studio lighting like reference teaching videos */
+function Lights({ isMobile }) {
   return (
     <>
-      <ambientLight intensity={0.42} />
+      <ambientLight intensity={0.28} color="#f2ebe3" />
+      <hemisphereLight args={['#f5f0ea', '#3a322c', 0.55]} />
       <directionalLight
-        castShadow
-        position={[4, 6, 3]}
-        intensity={1.65}
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
-        shadow-bias={-0.00025}
+        castShadow={!isMobile}
+        position={[3.8, 5.5, 2.8]}
+        intensity={1.55}
+        color="#fff6ec"
+        shadow-mapSize-width={isMobile ? 512 : 2048}
+        shadow-mapSize-height={isMobile ? 512 : 2048}
+        shadow-bias={-0.0002}
+        shadow-normalBias={0.03}
+        shadow-camera-near={0.5}
+        shadow-camera-far={18}
+        shadow-camera-left={-4}
+        shadow-camera-right={4}
+        shadow-camera-top={4}
+        shadow-camera-bottom={-4}
       />
-      <directionalLight position={[-3, 2.5, -2]} intensity={0.7} color="#9eb6cc" />
-      <directionalLight position={[1, 3, 5]} intensity={0.5} color="#fff1dc" />
-      <hemisphereLight args={['#dbe6f2', '#151c26', 0.55]} />
-      {/* Soft key fill for cinematic medical look */}
-      <pointLight position={[0.5, 1.5, 2]} intensity={0.35} color="#ffe6c8" distance={8} />
+      <directionalLight position={[-3.2, 2.2, -1.5]} intensity={0.55} color="#c8d6e4" />
+      <directionalLight position={[0.2, 1.8, -4]} intensity={0.45} color="#ffe8d0" />
+      <pointLight position={[0.4, 1.2, 1.8]} intensity={0.4} color="#ffe2c4" distance={7} decay={2} />
+      {!isMobile && <SoftShadows size={18} samples={12} focus={0.85} />}
     </>
   );
 }
@@ -176,20 +205,21 @@ export default function AnatomyViewer({ step, viewMode, languageMode }) {
     <div className="anatomy-viewer">
       <Canvas
         shadows={!isMobile}
-        dpr={isMobile ? [1, 1.5] : [1, 1.85]}
+        dpr={isMobile ? [1, 1.5] : [1, 2]}
         camera={{ position: [2.6, 1.2, 3.0], fov: isMobile ? 46 : 40, near: 0.1, far: 50 }}
         gl={{
           antialias: true,
-          alpha: true,
+          alpha: false,
           powerPreference: 'high-performance',
           toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.08,
+          toneMappingExposure: 1.12,
         }}
         onPointerMissed={() => useAppStore.getState().setSelectedStructure(null)}
       >
-        <color attach="background" args={['#080d12']} />
-        <fog attach="fog" args={['#080d12', 7, 14]} />
-        <Lights />
+        <color attach="background" args={['#2a2928']} />
+        <fog attach="fog" args={['#2a2928', 6.5, 16]} />
+        <Lights isMobile={isMobile} />
+        <StudioEnvironment intensity={0.42} />
         <Suspense fallback={null}>
           <AnatomyScene
             step={step}
@@ -197,7 +227,27 @@ export default function AnatomyViewer({ step, viewMode, languageMode }) {
             viewMode={viewMode}
             languageMode={languageMode}
           />
-          <ContactShadows position={[0, -2.05, 0]} opacity={0.45} scale={12} blur={2.8} far={5} />
+          {!isMobile ? (
+            <AccumulativeShadows
+              position={[0, -2.02, 0]}
+              frames={48}
+              alphaTest={0.85}
+              opacity={0.55}
+              scale={12}
+              color="#1a1512"
+            >
+              <RandomizedLight
+                amount={6}
+                radius={4}
+                ambient={0.45}
+                intensity={1.1}
+                position={[4, 6, 3]}
+                bias={0.001}
+              />
+            </AccumulativeShadows>
+          ) : (
+            <ContactShadows position={[0, -2.05, 0]} opacity={0.5} scale={12} blur={2.6} far={5} />
+          )}
         </Suspense>
         <CameraRig step={step} />
         <StepPlayback step={step} />

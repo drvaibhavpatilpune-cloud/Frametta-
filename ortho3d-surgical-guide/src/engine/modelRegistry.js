@@ -25,17 +25,17 @@ export const KNEE_MODEL_PACK = {
 };
 
 export const STRUCTURE_COLORS = {
-  femur: '#e2d3b8',
-  tibia: '#dccdb0',
-  patella: '#e8dcc4',
+  femur: '#e8d9c0',
+  tibia: '#e4d4ba',
+  patella: '#ecdfc8',
   acl: '#c9a67a',
   pcl: '#b8956a',
   mcl: '#b08962',
   lcl: '#b08962',
   meniscusMedial: '#d0b484',
   meniscusLateral: '#d0b484',
-  cartilage: '#a8c5d4',
-  muscles: '#8f4e4e',
+  cartilage: '#b8d0dc',
+  muscles: '#8f3e3e',
   neurovascular: '#9a3f4c',
   graft: '#d4b06a',
 };
