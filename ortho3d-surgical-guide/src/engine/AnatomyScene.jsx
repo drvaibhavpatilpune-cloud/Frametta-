@@ -17,6 +17,7 @@ import {
   GraftMesh,
   PortalMarkers,
   createMaterials,
+  highlightedMaterial,
 } from './KneeAnatomy';
 import { StepInstruments } from './Instruments';
 import { EXPLODE_OFFSETS } from './cameraPresets';
@@ -93,17 +94,21 @@ export default function AnatomyScene({
   if (selected) highlightIds.add(selected);
 
   const applyMat = (id, base) => {
-    if (highlightIds.has(id) && (viewMode === 'teaching' || viewMode === 'surgical' || selected === id)) {
-      return materials.highlight;
+    let mat = base;
+    if (
+      highlightIds.has(id) &&
+      (viewMode === 'teaching' || viewMode === 'surgical' || selected === id)
+    ) {
+      mat = highlightedMaterial(base);
     }
     const t = transparency[id];
     if (t != null && t < 1) {
-      const m = base.clone();
-      m.transparent = true;
-      m.opacity = t;
-      return m;
+      mat = mat.clone();
+      mat.transparent = true;
+      mat.opacity = t;
+      mat.depthWrite = t > 0.85;
     }
-    return base;
+    return mat;
   };
 
   const labelFor = (id) => {
@@ -121,10 +126,27 @@ export default function AnatomyScene({
     return null;
   };
 
-  // Apply step visibility overrides
+  // Apply step visibility overrides (reset defaults first so prior steps don't leak)
   useEffect(() => {
-    if (!step?.visibility) return;
-    useAppStore.getState().setVisibilityBatch(step.visibility);
+    if (!step) return;
+    const defaults = {
+      femur: true,
+      tibia: true,
+      patella: true,
+      acl: true,
+      pcl: true,
+      mcl: true,
+      lcl: true,
+      meniscusMedial: true,
+      meniscusLateral: true,
+      cartilage: true,
+      muscles: false,
+      neurovascular: false,
+      graft: false,
+      instruments: true,
+      portals: false,
+    };
+    useAppStore.getState().setVisibilityBatch({ ...defaults, ...(step.visibility || {}) });
   }, [step?.id]);
 
   const instrumentsOn =

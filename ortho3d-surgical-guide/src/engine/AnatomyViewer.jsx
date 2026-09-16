@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useRef } from 'react';
 import { Canvas, useThree, useFrame } from '@react-three/fiber';
-import { OrbitControls, ContactShadows, Environment } from '@react-three/drei';
+import { OrbitControls, ContactShadows } from '@react-three/drei';
 import * as THREE from 'three';
 import AnatomyScene from './AnatomyScene';
 import { CAMERA_PRESETS, orientationFromCamera } from './cameraPresets';
