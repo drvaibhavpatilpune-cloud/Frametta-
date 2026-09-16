@@ -100,10 +100,59 @@ export const useAppStore = create((set, get) => ({
   stepPaused: false,
   stepProgress: 0,
   setStepProgress: (p) => set({ stepProgress: p }),
+  seekNonce: 0,
+  seekStepProgress: (p) =>
+    set({
+      stepProgress: Math.min(1, Math.max(0, p)),
+      seekNonce: Date.now(),
+      stepPlaying: true,
+      stepPaused: false,
+    }),
+  skipStepSeconds: (deltaSec, durationSec) => {
+    const dur = durationSec || 10;
+    const cur = get().stepProgress * dur;
+    const next = Math.min(dur, Math.max(0, cur + deltaSec));
+    set({
+      stepProgress: next / dur,
+      seekNonce: Date.now(),
+      stepPlaying: true,
+      stepPaused: false,
+    });
+  },
   playStep: () => set({ stepPlaying: true, stepPaused: false }),
   pauseStep: () => set({ stepPaused: true, stepPlaying: false }),
-  replayStep: () => set({ stepPlaying: true, stepPaused: false, stepProgress: 0, stepReplayNonce: Date.now() }),
+  togglePlayPause: () => {
+    const { stepPlaying, stepPaused, stepProgress } = get();
+    if (stepPlaying && !stepPaused) {
+      set({ stepPaused: true, stepPlaying: false });
+    } else {
+      // replay from start if finished
+      if (stepProgress >= 0.999) {
+        set({
+          stepPlaying: true,
+          stepPaused: false,
+          stepProgress: 0,
+          stepReplayNonce: Date.now(),
+        });
+      } else {
+        set({ stepPlaying: true, stepPaused: false });
+      }
+    }
+  },
+  replayStep: () =>
+    set({
+      stepPlaying: true,
+      stepPaused: false,
+      stepProgress: 0,
+      stepReplayNonce: Date.now(),
+    }),
   stepReplayNonce: 0,
+  cinematicMode: true,
+  setCinematicMode: (on) => set({ cinematicMode: on }),
+  controlsVisible: true,
+  setControlsVisible: (on) => set({ controlsVisible: on }),
+  bumpControlsVisible: () => set({ controlsVisible: true, controlsBump: Date.now() }),
+  controlsBump: 0,
   nextStep: () => {
     const { currentStepIndex, stepCount } = get();
     if (currentStepIndex < stepCount - 1) {

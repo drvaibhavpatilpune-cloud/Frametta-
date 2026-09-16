@@ -212,9 +212,27 @@
   gap: 8px;
 }
 
-.surgical-module.presentation .sm-playback {
-  bottom: calc(var(--timeline-height) + 88px);
+.cine-exit-explore {
+  position: absolute;
+  top: calc(12px + var(--safe-top));
+  right: 12px;
+  z-index: 36;
+  min-height: 36px;
+  padding: 0 12px;
+  background: rgba(10, 16, 22, 0.55) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #fff !important;
+  font-size: 12px;
 }
+
+.surgical-module.cinematic .sm-layers {
+  z-index: 40;
+}
+
+.surgical-module.cinematic .orientation-indicator {
+  display: none;
+}
+
 
 .sm-mobile-fabs {
   display: none;

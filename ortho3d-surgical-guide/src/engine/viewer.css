@@ -2,7 +2,7 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 70% 55% at 50% 40%, #14202c 0%, #0b1218 70%);
+    radial-gradient(ellipse 80% 60% at 50% 42%, #1a2430 0%, #0a1016 62%, #06090d 100%);
 }
 
 .anatomy-viewer canvas {

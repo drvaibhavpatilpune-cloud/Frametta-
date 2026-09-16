@@ -12,6 +12,7 @@ export default function ProceduresScreen() {
   const setStepCount = useAppStore((s) => s.setStepCount);
   const setCurrentStepIndex = useAppStore((s) => s.setCurrentStepIndex);
   const setViewMode = useAppStore((s) => s.setViewMode);
+  const setCinematicMode = useAppStore((s) => s.setCinematicMode);
 
   const open = (id) => {
     const p = getProcedure(id);
@@ -21,6 +22,7 @@ export default function ProceduresScreen() {
     setStepCount(p.steps.length);
     setCurrentStepIndex(0);
     setViewMode('surgical');
+    setCinematicMode(true);
     setTab('viewer');
   };
 

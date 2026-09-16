@@ -25,6 +25,7 @@ import SurgicalTimeline from './SurgicalTimeline';
 import ExplanationPanel from './ExplanationPanel';
 import OrientationIndicator from './OrientationIndicator';
 import PresentationOverlay from './PresentationOverlay';
+import CinematicOverlay from './CinematicOverlay';
 import './SurgicalModule.css';
 
 export default function SurgicalModule() {
@@ -39,6 +40,8 @@ export default function SurgicalModule() {
   const setLanguageMode = useAppStore((s) => s.setLanguageMode);
   const presentationMode = useAppStore((s) => s.presentationMode);
   const setPresentationMode = useAppStore((s) => s.setPresentationMode);
+  const cinematicMode = useAppStore((s) => s.cinematicMode);
+  const setCinematicMode = useAppStore((s) => s.setCinematicMode);
   const layersOpen = useAppStore((s) => s.layersOpen);
   const setLayersOpen = useAppStore((s) => s.setLayersOpen);
   const explanationOpen = useAppStore((s) => s.explanationOpen);
@@ -72,6 +75,8 @@ export default function SurgicalModule() {
   const setShowLabels = useAppStore((s) => s.setShowLabels);
 
   const selectedInfo = selected ? getStructure(selected) : null;
+  const inCinematic =
+    cinematicMode && !presentationMode && (viewMode === 'surgical' || viewMode === 'teaching');
 
   useEffect(() => {
     if (isMobile) {
@@ -79,6 +84,11 @@ export default function SurgicalModule() {
       setExplanationOpen(false);
     }
   }, [isMobile, setLayersOpen, setExplanationOpen]);
+
+  useEffect(() => {
+    // Auto-play when entering cinematic surgical module
+    if (inCinematic) playStep();
+  }, [inCinematic, step?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onStepSelect = (index) => {
     setCurrentStepIndex(index);
@@ -88,11 +98,27 @@ export default function SurgicalModule() {
 
   return (
     <div
-      className={`surgical-module ${presentationMode ? 'presentation' : ''} ${isMobile ? 'mobile' : ''}`}
+      className={`surgical-module ${presentationMode ? 'presentation' : ''} ${isMobile ? 'mobile' : ''} ${inCinematic ? 'cinematic' : ''}`}
     >
       <AnatomyViewer step={step} viewMode={viewMode} languageMode={languageMode} />
 
-      {!presentationMode && (
+      {inCinematic && (
+        <CinematicOverlay
+          procedure={procedure}
+          step={step}
+          languageMode={languageMode}
+          onClose={() => {
+            setCinematicMode(false);
+            setTab('procedures');
+          }}
+          onOpenLayers={() => {
+            setLayersOpen(true);
+            setExplanationOpen(false);
+          }}
+        />
+      )}
+
+      {!presentationMode && !inCinematic && (
         <div className="sm-topbar">
           <button className="btn btn-ghost sm-back" onClick={() => setTab('procedures')}>
             <X size={16} />
@@ -109,30 +135,37 @@ export default function SurgicalModule() {
               <button
                 key={m}
                 className={`mode-btn ${viewMode === m ? 'active' : ''}`}
-                onClick={() => setViewMode(m)}
+                onClick={() => {
+                  setViewMode(m);
+                  if (m !== 'anatomy') setCinematicMode(true);
+                }}
               >
                 {isMobile ? m.slice(0, 3) : m}
               </button>
             ))}
           </div>
-          {!isMobile && (
-            <button
-              className={`btn btn-ghost ${languageMode === 'patient' ? 'active' : ''}`}
-              onClick={() =>
-                setLanguageMode(languageMode === 'patient' ? 'professional' : 'patient')
-              }
-            >
-              {languageMode === 'patient' ? 'Patient' : 'Professional'}
-            </button>
-          )}
-          <button className="btn btn-primary" onClick={() => setPresentationMode(true)}>
+          <button className="btn btn-primary" onClick={() => setCinematicMode(true)}>
+            <Play size={16} />
+            {!isMobile && ' Watch'}
+          </button>
+          <button className="btn btn-ghost" onClick={() => setPresentationMode(true)}>
             <Presentation size={16} />
             {!isMobile && ' Present'}
           </button>
         </div>
       )}
 
-      {isMobile && !presentationMode && (
+      {inCinematic && (
+        <button
+          className="cine-exit-explore btn btn-ghost"
+          onClick={() => setCinematicMode(false)}
+          title="Explore anatomy"
+        >
+          Explore
+        </button>
+      )}
+
+      {!inCinematic && isMobile && !presentationMode && (
         <div className="sm-mobile-fabs">
           <button
             className={`fab ${layersOpen ? 'active' : ''}`}
@@ -163,8 +196,9 @@ export default function SurgicalModule() {
         </div>
       )}
 
-      <OrientationIndicator />
+      {!inCinematic && <OrientationIndicator />}
 
+      {!inCinematic && (
       <div className="sm-camera-rail">
         <button
           className="rail-btn"
@@ -201,18 +235,19 @@ export default function SurgicalModule() {
           title="Save custom camera for this step"
           onClick={() => {
             saveCustomCamera(`step-${step.id}`, {
-              position: null, // placeholder — live capture via store extension later
+              position: null,
               target: null,
               note: `Saved for ${step.title}`,
             });
-            // Capture is approximate via preset remap
             saveCustomCamera(step.camera || 'custom', CAMERA_PRESETS[cameraPreset]);
           }}
         >
           <Bookmark size={16} />
         </button>
       </div>
+      )}
 
+      {!inCinematic && (
       <div className="sm-playback">
         <button className="rail-btn" onClick={prevStep} title="Previous step">
           <SkipBack size={16} />
@@ -233,11 +268,12 @@ export default function SurgicalModule() {
           <SkipForward size={16} />
         </button>
       </div>
+      )}
 
       {!presentationMode && (
         <>
           <aside
-            className={`sm-layers panel ${layersOpen ? 'open' : 'collapsed'} ${isMobile && !layersOpen ? 'hidden-mobile' : ''}`}
+            className={`sm-layers panel ${layersOpen ? 'open' : 'collapsed'} ${(isMobile || inCinematic) && !layersOpen ? 'hidden-mobile' : ''}`}
           >
             <button className="panel-toggle" onClick={() => setLayersOpen(!layersOpen)}>
               <Layers size={16} />
@@ -288,12 +324,22 @@ export default function SurgicalModule() {
                   >
                     <Eye size={14} /> Labels
                   </button>
+                  {inCinematic && (
+                    <button
+                      className={`btn btn-ghost ${languageMode === 'patient' ? 'active' : ''}`}
+                      onClick={() =>
+                        setLanguageMode(languageMode === 'patient' ? 'professional' : 'patient')
+                      }
+                    >
+                      {languageMode === 'patient' ? 'Patient' : 'Professional'}
+                    </button>
+                  )}
                 </div>
               </div>
             )}
           </aside>
 
-          {(selectedInfo || ((viewMode === 'teaching' || viewMode === 'surgical') && (explanationOpen || !isMobile))) && (
+          {!inCinematic && (selectedInfo || ((viewMode === 'teaching' || viewMode === 'surgical') && (explanationOpen || !isMobile))) && (
             <div className={`sm-right-stack ${isMobile && !explanationOpen && !selectedInfo ? 'hidden-mobile' : ''}`}>
               {selectedInfo && (
                 <div className="sm-selection panel">
@@ -333,7 +379,7 @@ export default function SurgicalModule() {
         </>
       )}
 
-      {viewMode !== 'anatomy' && (
+      {viewMode !== 'anatomy' && !inCinematic && (
         <SurgicalTimeline
           steps={procedure.steps}
           currentIndex={currentStepIndex}

@@ -92,8 +92,12 @@ function StepPlayback({ step }) {
   const stepPlaying = useAppStore((s) => s.stepPlaying);
   const stepPaused = useAppStore((s) => s.stepPaused);
   const setStepProgress = useAppStore((s) => s.setStepProgress);
+  const stepProgress = useAppStore((s) => s.stepProgress);
   const stepReplayNonce = useAppStore((s) => s.stepReplayNonce);
+  const seekNonce = useAppStore((s) => s.seekNonce);
   const pauseStep = useAppStore((s) => s.pauseStep);
+  const nextStep = useAppStore((s) => s.nextStep);
+  const cinematicMode = useAppStore((s) => s.cinematicMode);
   const elapsed = useRef(0);
 
   useEffect(() => {
@@ -101,13 +105,30 @@ function StepPlayback({ step }) {
     setStepProgress(0);
   }, [step?.id, stepReplayNonce, setStepProgress]);
 
+  useEffect(() => {
+    // Sync elapsed when user scrubs / skips
+    const dur = step?.durationSec || 10;
+    elapsed.current = stepProgress * dur;
+  }, [seekNonce]); // eslint-disable-line react-hooks/exhaustive-deps
+
   useFrame((_, dt) => {
     if (!step || !stepPlaying || stepPaused) return;
     const dur = step.durationSec || 10;
     elapsed.current += dt;
     const p = Math.min(1, elapsed.current / dur);
     setStepProgress(p);
-    if (p >= 1) pauseStep();
+    if (p >= 1) {
+      pauseStep();
+      // Auto-advance in cinematic mode after a brief hold
+      if (cinematicMode) {
+        window.setTimeout(() => {
+          const st = useAppStore.getState();
+          if (st.stepProgress >= 0.999 && st.currentStepIndex < st.stepCount - 1) {
+            nextStep();
+          }
+        }, 900);
+      }
+    }
   });
 
   return null;

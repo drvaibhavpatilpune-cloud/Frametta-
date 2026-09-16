@@ -15,10 +15,13 @@ import {
   GraftMesh,
   PortalMarkers,
 } from './KneeAnatomy';
+import { StepCallouts } from './CalloutLabels';
+import { SurgicalActionMarkers } from './SurgicalActionMarkers';
 import { StepInstruments } from './Instruments';
 import { EXPLODE_OFFSETS } from './cameraPresets';
 import { useAppStore } from '../store/useAppStore';
 import { getStructure } from '../data/anatomy';
+import './CalloutLabels.css';
 
 function StructureGroup({
   id,
@@ -124,14 +127,10 @@ export default function AnatomyScene({ step, stepProgress, viewMode, languageMod
   }, [step?.highlight, selected]);
 
   const labelFor = (id) => {
+    // Cinematic callouts replace box labels in surgical/teaching modes
+    if (viewMode === 'surgical' || viewMode === 'teaching') return null;
     if (viewMode === 'anatomy' && selected !== id) return null;
-    const stepLabel = (step?.labels || []).find((l) => l.structureId === id);
-    if (stepLabel && viewMode !== 'anatomy') return stepLabel.text;
     if (selected === id) {
-      const s = getStructure(id);
-      return languageMode === 'patient' ? s?.patientName || s?.name : s?.name;
-    }
-    if (showLabels && viewMode === 'teaching' && highlightIds.has(id)) {
       const s = getStructure(id);
       return languageMode === 'patient' ? s?.patientName || s?.name : s?.name;
     }
@@ -365,6 +364,12 @@ export default function AnatomyScene({ step, stepProgress, viewMode, languageMod
         progress={stepProgress}
         visible={instrumentsOn}
       />
+      {viewMode !== 'anatomy' && (
+        <>
+          <StepCallouts stepId={step?.id} languageMode={languageMode} />
+          <SurgicalActionMarkers animation={step?.animation} progress={stepProgress} />
+        </>
+      )}
     </group>
   );
 }

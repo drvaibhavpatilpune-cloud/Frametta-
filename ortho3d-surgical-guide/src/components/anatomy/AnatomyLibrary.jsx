@@ -12,6 +12,7 @@ export default function AnatomyLibrary() {
   const setStepCount = useAppStore((s) => s.setStepCount);
   const setCurrentStepIndex = useAppStore((s) => s.setCurrentStepIndex);
   const setViewMode = useAppStore((s) => s.setViewMode);
+  const setCinematicMode = useAppStore((s) => s.setCinematicMode);
   const addRecent = useAppStore((s) => s.addRecent);
 
   const openKneeViewer = () => {
@@ -21,6 +22,7 @@ export default function AnatomyLibrary() {
     setStepCount(p.steps.length);
     setCurrentStepIndex(0);
     setViewMode('anatomy');
+    setCinematicMode(false);
     setTab('viewer');
   };
 
