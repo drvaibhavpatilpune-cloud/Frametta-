@@ -4,10 +4,11 @@ import { OrbitControls, ContactShadows } from '@react-three/drei';
 import * as THREE from 'three';
 import AnatomyScene from './AnatomyScene';
 import { CAMERA_PRESETS, orientationFromCamera } from './cameraPresets';
+import { CINEMATIC_CAMERA, sampleCameraPath } from './animMath';
 import { useAppStore } from '../store/useAppStore';
 import './viewer.css';
 
-function CameraRig() {
+function CameraRig({ step }) {
   const controls = useRef();
   const { camera } = useThree();
   const cameraPreset = useAppStore((s) => s.cameraPreset);
@@ -16,11 +17,17 @@ function CameraRig() {
   const autoRotate = useAppStore((s) => s.autoRotate);
   const setOrientation = useAppStore((s) => s.setOrientation);
   const customCameras = useAppStore((s) => s.customCameras);
+  const cinematicMode = useAppStore((s) => s.cinematicMode);
+  const stepProgress = useAppStore((s) => s.stepProgress);
+  const stepPlaying = useAppStore((s) => s.stepPlaying);
+  const stepPaused = useAppStore((s) => s.stepPaused);
   const targetPos = useRef(new THREE.Vector3(2.6, 1.2, 3.0));
   const targetLook = useRef(new THREE.Vector3(0, 0.1, 0));
   const animating = useRef(false);
+  const userOverride = useRef(false);
 
   useEffect(() => {
+    userOverride.current = false;
     const custom = customCameras[cameraPreset];
     const preset = CAMERA_PRESETS[cameraPreset] || CAMERA_PRESETS.oblique;
     const pos = custom?.position || preset.position;
@@ -28,12 +35,32 @@ function CameraRig() {
     targetPos.current.set(...pos);
     targetLook.current.set(...look);
     animating.current = true;
-  }, [cameraPreset, cameraNonce, resetCameraNonce, customCameras]);
+  }, [cameraPreset, cameraNonce, resetCameraNonce, customCameras, step?.id]);
 
   useFrame((_, dt) => {
-    if (controls.current) controls.current.autoRotate = autoRotate;
+    if (controls.current) {
+      controls.current.autoRotate = autoRotate && !cinematicMode;
+      // If user starts dragging during cinematic, pause camera path briefly
+      if (controls.current.enabled && cinematicMode) {
+        // keep enabled so they can still explore
+      }
+    }
 
-    if (animating.current) {
+    const path = cinematicMode && step?.animation ? CINEMATIC_CAMERA[step.animation] : null;
+    const playingCinematic = cinematicMode && path && (stepPlaying || stepPaused);
+
+    if (playingCinematic && !userOverride.current) {
+      const sample = sampleCameraPath(path, stepProgress);
+      if (sample) {
+        targetPos.current.set(...sample.position);
+        targetLook.current.set(...sample.target);
+        camera.position.lerp(targetPos.current, Math.min(1, dt * 2.4));
+        if (controls.current) {
+          controls.current.target.lerp(targetLook.current, Math.min(1, dt * 2.4));
+          controls.current.update();
+        }
+      }
+    } else if (animating.current) {
       camera.position.lerp(targetPos.current, Math.min(1, dt * 3.2));
       if (controls.current) {
         controls.current.target.lerp(targetLook.current, Math.min(1, dt * 3.2));
@@ -57,13 +84,16 @@ function CameraRig() {
       rotateSpeed={0.85}
       zoomSpeed={0.9}
       panSpeed={0.7}
-      minDistance={1.6}
+      minDistance={1.2}
       maxDistance={8}
       target={[0, 0.1, 0]}
-      autoRotateSpeed={0.55}
+      autoRotateSpeed={0.45}
       touches={{
         ONE: THREE.TOUCH.ROTATE,
         TWO: THREE.TOUCH.DOLLY_PAN,
+      }}
+      onStart={() => {
+        userOverride.current = true;
       }}
     />
   );
@@ -72,18 +102,20 @@ function CameraRig() {
 function Lights() {
   return (
     <>
-      <ambientLight intensity={0.48} />
+      <ambientLight intensity={0.42} />
       <directionalLight
         castShadow
         position={[4, 6, 3]}
-        intensity={1.55}
+        intensity={1.65}
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
         shadow-bias={-0.00025}
       />
-      <directionalLight position={[-3, 2.5, -2]} intensity={0.65} color="#9eb6cc" />
-      <directionalLight position={[1, 3, 5]} intensity={0.45} color="#fff1dc" />
-      <hemisphereLight args={['#dbe6f2', '#151c26', 0.6]} />
+      <directionalLight position={[-3, 2.5, -2]} intensity={0.7} color="#9eb6cc" />
+      <directionalLight position={[1, 3, 5]} intensity={0.5} color="#fff1dc" />
+      <hemisphereLight args={['#dbe6f2', '#151c26', 0.55]} />
+      {/* Soft key fill for cinematic medical look */}
+      <pointLight position={[0.5, 1.5, 2]} intensity={0.35} color="#ffe6c8" distance={8} />
     </>
   );
 }
@@ -99,14 +131,15 @@ function StepPlayback({ step }) {
   const nextStep = useAppStore((s) => s.nextStep);
   const cinematicMode = useAppStore((s) => s.cinematicMode);
   const elapsed = useRef(0);
+  const advanceTimer = useRef(null);
 
   useEffect(() => {
     elapsed.current = 0;
     setStepProgress(0);
+    if (advanceTimer.current) clearTimeout(advanceTimer.current);
   }, [step?.id, stepReplayNonce, setStepProgress]);
 
   useEffect(() => {
-    // Sync elapsed when user scrubs / skips
     const dur = step?.durationSec || 10;
     elapsed.current = stepProgress * dur;
   }, [seekNonce]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -119,14 +152,14 @@ function StepPlayback({ step }) {
     setStepProgress(p);
     if (p >= 1) {
       pauseStep();
-      // Auto-advance in cinematic mode after a brief hold
       if (cinematicMode) {
-        window.setTimeout(() => {
+        if (advanceTimer.current) clearTimeout(advanceTimer.current);
+        advanceTimer.current = setTimeout(() => {
           const st = useAppStore.getState();
           if (st.stepProgress >= 0.999 && st.currentStepIndex < st.stepCount - 1) {
             nextStep();
           }
-        }, 900);
+        }, 1100);
       }
     }
   });
@@ -143,19 +176,19 @@ export default function AnatomyViewer({ step, viewMode, languageMode }) {
     <div className="anatomy-viewer">
       <Canvas
         shadows={!isMobile}
-        dpr={isMobile ? [1, 1.5] : [1, 1.75]}
-        camera={{ position: [2.6, 1.2, 3.0], fov: isMobile ? 48 : 42, near: 0.1, far: 50 }}
+        dpr={isMobile ? [1, 1.5] : [1, 1.85]}
+        camera={{ position: [2.6, 1.2, 3.0], fov: isMobile ? 46 : 40, near: 0.1, far: 50 }}
         gl={{
           antialias: true,
           alpha: true,
           powerPreference: 'high-performance',
           toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.05,
+          toneMappingExposure: 1.08,
         }}
         onPointerMissed={() => useAppStore.getState().setSelectedStructure(null)}
       >
-        <color attach="background" args={['#0b1218']} />
-        <fog attach="fog" args={['#0b1218', 9, 16]} />
+        <color attach="background" args={['#080d12']} />
+        <fog attach="fog" args={['#080d12', 7, 14]} />
         <Lights />
         <Suspense fallback={null}>
           <AnatomyScene
@@ -164,13 +197,12 @@ export default function AnatomyViewer({ step, viewMode, languageMode }) {
             viewMode={viewMode}
             languageMode={languageMode}
           />
-          <ContactShadows position={[0, -2.05, 0]} opacity={0.4} scale={12} blur={2.8} far={5} />
+          <ContactShadows position={[0, -2.05, 0]} opacity={0.45} scale={12} blur={2.8} far={5} />
         </Suspense>
-        <CameraRig />
+        <CameraRig step={step} />
         <StepPlayback step={step} />
       </Canvas>
       <div className="viewer-vignette" />
-      <div className="viewer-loading-hint">Drag to rotate · Pinch to zoom</div>
     </div>
   );
 }

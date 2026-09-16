@@ -16,8 +16,7 @@ import {
   PortalMarkers,
 } from './KneeAnatomy';
 import { StepCallouts } from './CalloutLabels';
-import { SurgicalActionMarkers } from './SurgicalActionMarkers';
-import { StepInstruments } from './Instruments';
+import SurgicalAnimations from './SurgicalAnimations';
 import { EXPLODE_OFFSETS } from './cameraPresets';
 import { useAppStore } from '../store/useAppStore';
 import { getStructure } from '../data/anatomy';
@@ -164,12 +163,17 @@ export default function AnatomyScene({ step, stepProgress, viewMode, languageMod
 
   const graftProgress =
     step?.animation === 'graftPassage'
-      ? stepProgress
+      ? 0 // cinematic component owns graft during passage
       : step?.animation === 'fixation' || step?.animation === 'finalConstruct'
-        ? 1
+        ? 0
         : visibility.graft
           ? 1
           : 0;
+
+  const cinematicOwnsGraft =
+    step?.animation === 'graftPassage' ||
+    step?.animation === 'fixation' ||
+    step?.animation === 'finalConstruct';
 
   const paths = KNEE_MODEL_PACK.structures;
   const layerProps = { explode, isolated, onSelect: setSelected };
@@ -350,7 +354,7 @@ export default function AnatomyScene({ step, stepProgress, viewMode, languageMod
         explode={explode}
         selected={selected === 'graft'}
         isolated={isolated}
-        visible={visibility.graft || graftProgress > 0}
+        visible={!cinematicOwnsGraft && (visibility.graft || graftProgress > 0)}
         onSelect={setSelected}
         showLabel={!!labelFor('graft')}
         labelText={labelFor('graft')}
@@ -359,17 +363,12 @@ export default function AnatomyScene({ step, stepProgress, viewMode, languageMod
       </StructureGroup>
 
       <PortalMarkers visible={visibility.portals && viewMode !== 'anatomy'} />
-      <StepInstruments
+      <SurgicalAnimations
         animation={step?.animation}
         progress={stepProgress}
-        visible={instrumentsOn}
+        visible={instrumentsOn || viewMode === 'teaching' || viewMode === 'surgical'}
       />
-      {viewMode !== 'anatomy' && (
-        <>
-          <StepCallouts stepId={step?.id} languageMode={languageMode} />
-          <SurgicalActionMarkers animation={step?.animation} progress={stepProgress} />
-        </>
-      )}
+      {viewMode !== 'anatomy' && <StepCallouts stepId={step?.id} languageMode={languageMode} />}
     </group>
   );
 }

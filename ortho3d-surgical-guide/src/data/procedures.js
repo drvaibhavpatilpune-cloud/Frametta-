@@ -98,7 +98,7 @@ export const PROCEDURES = {
         id: 'positioning',
         number: 1,
         title: 'Patient positioning',
-        durationSec: 8,
+        durationSec: 12,
         camera: 'lateral',
         highlight: ['femur', 'tibia', 'patella'],
         visibility: {
@@ -130,7 +130,7 @@ export const PROCEDURES = {
         id: 'portals',
         number: 2,
         title: 'Portal placement',
-        durationSec: 10,
+        durationSec: 14,
         camera: 'oblique',
         highlight: ['patella'],
         visibility: {
@@ -163,7 +163,7 @@ export const PROCEDURES = {
         id: 'diagnostic',
         number: 3,
         title: 'Diagnostic arthroscopy',
-        durationSec: 12,
+        durationSec: 16,
         camera: 'arthroscopic',
         highlight: ['cartilage', 'meniscusMedial', 'meniscusLateral'],
         visibility: {
@@ -193,7 +193,7 @@ export const PROCEDURES = {
         id: 'acl-assessment',
         number: 4,
         title: 'ACL assessment',
-        durationSec: 10,
+        durationSec: 14,
         camera: 'surgical',
         highlight: ['acl'],
         visibility: {
@@ -223,7 +223,7 @@ export const PROCEDURES = {
         id: 'femoral-tunnel',
         number: 5,
         title: 'Femoral tunnel',
-        durationSec: 16,
+        durationSec: 20,
         camera: 'oblique',
         highlight: ['femur', 'acl'],
         visibility: {
@@ -253,7 +253,7 @@ export const PROCEDURES = {
         id: 'tibial-tunnel',
         number: 6,
         title: 'Tibial tunnel',
-        durationSec: 14,
+        durationSec: 18,
         camera: 'ap',
         highlight: ['tibia', 'acl'],
         visibility: {
@@ -282,7 +282,7 @@ export const PROCEDURES = {
         id: 'graft-passage',
         number: 7,
         title: 'Graft passage',
-        durationSec: 14,
+        durationSec: 18,
         camera: 'surgical',
         highlight: ['graft'],
         visibility: {
@@ -312,7 +312,7 @@ export const PROCEDURES = {
         id: 'fixation',
         number: 8,
         title: 'Fixation',
-        durationSec: 12,
+        durationSec: 16,
         camera: 'lateral',
         highlight: ['graft', 'screw'],
         visibility: {
@@ -342,7 +342,7 @@ export const PROCEDURES = {
         id: 'final-construct',
         number: 9,
         title: 'Final construct',
-        durationSec: 10,
+        durationSec: 14,
         camera: 'oblique',
         highlight: ['graft', 'femur', 'tibia'],
         visibility: {
