@@ -23,17 +23,18 @@ function orientAlong(from, to) {
   };
 }
 
-function MetalMat({ color, emissive, emissiveIntensity = 0, roughness = 1 }) {
+function MetalMat({ color, emissive, emissiveIntensity = 0, matOpacity = 1 }) {
+  const transparent = matOpacity < 1;
   return (
     <meshStandardMaterial
       color={color}
-      metalness={opacity < 1 ? 0.25 : 0.88}
-      roughness={opacity < 1 ? 0.38 : 0.18}
+      metalness={transparent ? 0.25 : 0.88}
+      roughness={transparent ? 0.38 : 0.18}
       emissive={emissive || '#000000'}
       emissiveIntensity={emissiveIntensity}
-      transparent={opacity < 1}
-      opacity={opacity}
-      depthWrite={opacity >= 0.95}
+      transparent={transparent}
+      opacity={matOpacity}
+      depthWrite={matOpacity >= 0.95}
     />
   );
 }
@@ -60,7 +61,7 @@ function AlignedCylinder({
       <cylinderGeometry args={[radius, radius, len, radial]} />
       <MetalMat
         color={color}
-        opacity={opacity}
+        matOpacity={opacity}
         emissive={emissive}
         emissiveIntensity={emissive ? emissiveIntensity : 0}
       />
@@ -330,98 +331,99 @@ function AnimatedProbe({ progress }) {
 }
 
 function AnimatedGuideAndReamer({ progress, guideFrom, axisFrom, axisTo }) {
-  const aim = phase(progress, 0, 0.22);
-  const pin = phase(progress, 0.18, 0.42);
-  const reamIn = phase(progress, 0.4, 0.88);
-  const reamOut = phase(progress, 0.88, 1);
-  const ream = reamIn * (1 - reamOut * 0.35);
+  const aim = phase(progress, 0, 0.2);
+  const pin = phase(progress, 0.15, 0.4);
+  const reamIn = phase(progress, 0.36, 0.86);
+  const withdraw = phase(progress, 0.86, 1);
   const spinRef = useRef();
 
   useFrame((_, dt) => {
-    if (spinRef.current && reamIn > 0.02) {
-      spinRef.current.rotation.y += dt * (14 + reamIn * 22);
+    if (spinRef.current && reamIn > 0.02 && withdraw < 0.85) {
+      spinRef.current.rotation.y += dt * (18 + reamIn * 28);
     }
   });
 
-  const tipT = Math.max(pin, reamIn * 0.92);
+  // Cutting tip progresses into bone; on withdraw, pull back slightly
+  const tipT = Math.max(pin * 0.35, reamIn * 0.95) * (1 - withdraw * 0.25);
   const tip = lerpVec3(axisFrom, axisTo, tipT);
-  const guidePos = lerpVec3(
-    [guideFrom[0] + 0.4, guideFrom[1] + 0.3, guideFrom[2] + 0.45],
-    guideFrom,
-    aim
-  );
+  // Reamer body sits just behind the cutting tip (outside the hole)
+  const reamerT = Math.max(0, tipT - 0.08);
+  const guideStart = [guideFrom[0] + 0.5, guideFrom[1] + 0.35, guideFrom[2] + 0.5];
+  const guideSeat = lerpVec3(guideStart, axisFrom, aim);
+  const { quat: guideQuat } = orientAlong(axisFrom, axisTo);
 
   return (
     <group>
-      {/* Aiming guide sleeve — oriented to tunnel axis */}
-      <AlongAxis from={axisFrom} to={axisTo} t={0} offset={-0.05}>
-        <group
-          position={[
-            (guidePos[0] - axisFrom[0]) * (1 - aim),
-            (guidePos[1] - axisFrom[1]) * (1 - aim),
-            (guidePos[2] - axisFrom[2]) * (1 - aim),
-          ]}
-        >
-          <mesh position={[0, 0.35, 0]} castShadow>
-            <cylinderGeometry args={[0.055, 0.07, 0.7, 16]} />
-            <MetalMat color="#7a8898" />
-          </mesh>
-          <mesh position={[0, 0.05, 0]} rotation={[Math.PI / 2, 0, 0]}>
-            <torusGeometry args={[0.095, 0.016, 10, 28]} />
-            <MetalMat color="#d8e0e8" />
-          </mesh>
-          <mesh position={[0.12, 0.45, 0]} rotation={[0, 0, 0.5]}>
-            <boxGeometry args={[0.08, 0.22, 0.04]} />
-            <meshStandardMaterial color="#1c2430" metalness={0.35} roughness={0.45} />
-          </mesh>
-        </group>
-      </AlongAxis>
+      {/* Aiming guide approaches then seats on cortex, aimed along tunnel */}
+      <group position={guideSeat} quaternion={guideQuat}>
+        <mesh position={[0, -0.28, 0]} castShadow>
+          <cylinderGeometry args={[0.062, 0.078, 0.85, 18]} />
+          <MetalMat color="#7a8898" />
+        </mesh>
+        <mesh position={[0, 0.12, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[0.11, 0.018, 12, 32]} />
+          <MetalMat color="#e4ecf2" />
+        </mesh>
+        <mesh position={[0.14, -0.15, 0]} rotation={[0, 0, 0.45]}>
+          <boxGeometry args={[0.09, 0.26, 0.045]} />
+          <meshStandardMaterial color="#1c2430" metalness={0.35} roughness={0.45} />
+        </mesh>
+      </group>
 
-      {/* Beath / guide pin advancing through bone */}
-      <AlignedCylinder from={axisFrom} to={axisTo} radius={0.011} progress={pin} color="#eef2f6" />
+      {/* Beath pin advances through bone */}
+      <AlignedCylinder from={axisFrom} to={axisTo} radius={0.013} progress={pin} color="#f2f6fa" />
 
-      {/* Cannulated reamer — spins and advances along exact axis */}
-      {reamIn > 0.015 && (
-        <AlongAxis from={axisFrom} to={axisTo} t={ream * 0.88} offset={0.12}>
+      {/* Cannulated reamer — tip into bone (+Y), shaft back out */}
+      {reamIn > 0.02 && (
+        <AlongAxis from={axisFrom} to={axisTo} t={reamerT}>
           <group ref={spinRef}>
-            <mesh castShadow>
-              <cylinderGeometry args={[0.042, 0.042, 0.62, 16]} />
-              <MetalMat color="#8e9aa8" />
+            {/* shaft behind tip */}
+            <mesh position={[0, -0.28, 0]} castShadow>
+              <cylinderGeometry args={[0.048, 0.048, 0.7, 18]} />
+              <MetalMat color="#9aa6b4" />
             </mesh>
-            <mesh position={[0, -0.36, 0]}>
-              <coneGeometry args={[0.068, 0.16, 14]} />
-              <MetalMat color="#c8d2dc" emissive="#664418" emissiveIntensity={0.25 + reamIn * 0.35} />
+            {/* cutting head at origin pointing into bone */}
+            <mesh position={[0, 0.02, 0]}>
+              <coneGeometry args={[0.078, 0.18, 16]} />
+              <MetalMat
+                color="#d5dee6"
+                emissive="#775522"
+                emissiveIntensity={0.35 + reamIn * 0.45}
+              />
             </mesh>
-            <mesh position={[0, 0.28, 0]}>
-              <cylinderGeometry args={[0.05, 0.05, 0.1, 12]} />
+            <mesh position={[0, -0.62, 0]}>
+              <cylinderGeometry args={[0.055, 0.055, 0.12, 12]} />
               <meshStandardMaterial color="#121820" metalness={0.4} roughness={0.4} />
             </mesh>
-            {/* flutes */}
-            {[0, 1, 2, 3].map((i) => (
-              <mesh key={i} rotation={[0, (i * Math.PI) / 2, 0]} position={[0.038, -0.1, 0]}>
-                <boxGeometry args={[0.012, 0.35, 0.02]} />
-                <MetalMat color="#aab4c0" />
+            {[0, 1, 2, 3, 4, 5].map((i) => (
+              <mesh
+                key={i}
+                rotation={[0, (i * Math.PI) / 3, 0]}
+                position={[0.045, -0.15, 0]}
+              >
+                <boxGeometry args={[0.014, 0.4, 0.022]} />
+                <MetalMat color="#b4bec8" />
               </mesh>
             ))}
           </group>
         </AlongAxis>
       )}
 
-      {/* Tunnel lumen appearing */}
+      {/* Tunnel lumen bore */}
       <AlignedCylinder
         from={axisFrom}
         to={axisTo}
-        radius={0.052}
+        radius={0.058}
         progress={Math.max(0, reamIn)}
-        color="#2d8f8f"
-        opacity={0.32}
-        emissive="#1a5555"
-        emissiveIntensity={0.55}
+        color="#2a9a9a"
+        opacity={0.38}
+        emissive="#1a6666"
+        emissiveIntensity={0.65}
       />
 
-      <DrillSparks position={tip} active={reamIn > 0.06 && reamIn < 0.97} rate={1.6} />
-      <BoneDustCloud position={tip} active={reamIn > 0.08 && reamIn < 0.95} progress={reamIn} />
-      <pointLight position={tip} intensity={reamIn * 1.8} color="#ffc978" distance={1.2} />
+      <DrillSparks position={tip} active={reamIn > 0.05 && withdraw < 0.5} rate={2.2} color="#ffd27a" />
+      <BoneDustCloud position={tip} active={reamIn > 0.06 && withdraw < 0.6} progress={reamIn} />
+      <pointLight position={tip} intensity={reamIn * 2.4} color="#ffc978" distance={1.4} />
     </group>
   );
 }
