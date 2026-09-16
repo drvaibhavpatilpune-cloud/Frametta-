@@ -72,18 +72,18 @@ function CameraRig() {
 function Lights() {
   return (
     <>
-      <ambientLight intensity={0.55} />
+      <ambientLight intensity={0.48} />
       <directionalLight
         castShadow
-        position={[3.5, 5.5, 2.8]}
-        intensity={1.35}
+        position={[4, 6, 3]}
+        intensity={1.55}
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
-        shadow-bias={-0.0002}
+        shadow-bias={-0.00025}
       />
-      <directionalLight position={[-2.5, 1.8, -2]} intensity={0.55} color="#b7cce0" />
-      <directionalLight position={[0, 2, 4]} intensity={0.35} color="#fff6e8" />
-      <hemisphereLight args={['#e7eef6', '#1b2430', 0.55]} />
+      <directionalLight position={[-3, 2.5, -2]} intensity={0.65} color="#9eb6cc" />
+      <directionalLight position={[1, 3, 5]} intensity={0.45} color="#fff1dc" />
+      <hemisphereLight args={['#dbe6f2', '#151c26', 0.6]} />
     </>
   );
 }
