@@ -153,7 +153,7 @@ function DrillSparks({ position, active, rate = 1, color = '#e8c46a' }) {
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
       </bufferGeometry>
-      <pointsMaterial color={color} size={0.032} transparent opacity={0.9} depthWrite={false} sizeAttenuation />
+      <pointsMaterial color={color} size={0.07} transparent opacity={0.95} depthWrite={false} sizeAttenuation />
     </points>
   );
 }
@@ -339,7 +339,7 @@ function AnimatedGuideAndReamer({ progress, guideFrom, axisFrom, axisTo }) {
 
   useFrame((_, dt) => {
     if (spinRef.current && reamIn > 0.02 && withdraw < 0.85) {
-      spinRef.current.rotation.y += dt * (18 + reamIn * 28);
+      spinRef.current.rotation.y += dt * (28 + reamIn * 40);
     }
   });
 
@@ -386,48 +386,53 @@ function AnimatedGuideAndReamer({ progress, guideFrom, axisFrom, axisTo }) {
       {reamIn > 0.02 && (
         <AlongAxis from={axisFrom} to={axisTo} t={reamerT}>
           <group ref={spinRef}>
-            {/* shaft behind tip */}
-            <mesh position={[0, -0.28, 0]} castShadow>
-              <cylinderGeometry args={[0.048, 0.048, 0.7, 18]} />
-              <MetalMat color="#9aa6b4" />
+            <mesh position={[0, -0.32, 0]} castShadow>
+              <cylinderGeometry args={[0.05, 0.05, 0.75, 18]} />
+              <MetalMat color="#c5ced8" />
             </mesh>
-            {/* cutting head at origin pointing into bone */}
-            <mesh position={[0, 0.02, 0]}>
-              <coneGeometry args={[0.078, 0.18, 16]} />
+            {/* bright cutting head — unmistakable silver */}
+            <mesh position={[0, 0.06, 0]}>
+              <coneGeometry args={[0.09, 0.2, 16]} />
               <MetalMat
-                color="#d5dee6"
-                emissive="#775522"
-                emissiveIntensity={0.35 + reamIn * 0.45}
+                color="#f0f4f8"
+                emissive="#aa7722"
+                emissiveIntensity={0.55 + reamIn * 0.5}
               />
             </mesh>
-            <mesh position={[0, -0.62, 0]}>
-              <cylinderGeometry args={[0.055, 0.055, 0.12, 12]} />
-              <meshStandardMaterial color="#121820" metalness={0.4} roughness={0.4} />
+            <mesh position={[0, -0.7, 0]}>
+              <cylinderGeometry args={[0.06, 0.06, 0.14, 12]} />
+              <meshStandardMaterial color="#0e141c" metalness={0.4} roughness={0.4} />
             </mesh>
-            {[0, 1, 2, 3, 4, 5].map((i) => (
+            {/* bold helical flutes so spin reads from the side */}
+            {[0, 1, 2].map((i) => (
               <mesh
                 key={i}
-                rotation={[0, (i * Math.PI) / 3, 0]}
-                position={[0.045, -0.15, 0]}
+                rotation={[0, (i * Math.PI * 2) / 3, 0.35]}
+                position={[0.055, -0.2, 0]}
               >
-                <boxGeometry args={[0.014, 0.4, 0.022]} />
-                <MetalMat color="#b4bec8" />
+                <boxGeometry args={[0.03, 0.55, 0.04]} />
+                <MetalMat color="#5a6a7a" />
               </mesh>
             ))}
+            {/* offset marker vane — proves rotation */}
+            <mesh position={[0.09, -0.45, 0]}>
+              <boxGeometry args={[0.08, 0.12, 0.025]} />
+              <meshStandardMaterial color="#e8c46a" metalness={0.6} roughness={0.3} emissive="#8a7020" emissiveIntensity={0.6} />
+            </mesh>
           </group>
         </AlongAxis>
       )}
 
-      {/* Tunnel lumen bore */}
+      {/* Tunnel lumen — dark hollow bore, not a solid teal “tool” */}
       <AlignedCylinder
         from={axisFrom}
         to={axisTo}
-        radius={0.058}
+        radius={0.062}
         progress={Math.max(0, reamIn)}
-        color="#2a9a9a"
-        opacity={0.38}
-        emissive="#1a6666"
-        emissiveIntensity={0.65}
+        color="#1a3030"
+        opacity={0.55}
+        emissive="#0a4040"
+        emissiveIntensity={0.35}
       />
 
       <DrillSparks position={tip} active={reamIn > 0.05 && withdraw < 0.5} rate={2.2} color="#ffd27a" />
